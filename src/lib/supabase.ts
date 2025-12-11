@@ -1,14 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export type Database = {
   public: {
     Tables: {
@@ -34,6 +25,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       user_preferences: {
         Row: {
@@ -69,6 +61,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       workout_videos: {
         Row: {
@@ -82,7 +75,7 @@ export type Database = {
           intensity: string;
           muscle_groups: string[];
           equipment_needed: string[];
-          exercises: any;
+          exercises: Record<string, unknown>[];
           created_at: string;
         };
         Insert: {
@@ -96,7 +89,7 @@ export type Database = {
           intensity: string;
           muscle_groups?: string[];
           equipment_needed?: string[];
-          exercises?: any;
+          exercises?: Record<string, unknown>[];
           created_at?: string;
         };
         Update: {
@@ -110,9 +103,10 @@ export type Database = {
           intensity?: string;
           muscle_groups?: string[];
           equipment_needed?: string[];
-          exercises?: any;
+          exercises?: Record<string, unknown>[];
           created_at?: string;
         };
+        Relationships: [];
       };
       scheduled_workouts: {
         Row: {
@@ -142,6 +136,7 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       chat_messages: {
         Row: {
@@ -165,7 +160,21 @@ export type Database = {
           content?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);

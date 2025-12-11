@@ -11,12 +11,12 @@ import {
 } from 'lucide-react';
 import { ChatMessage } from '@/lib/types';
 import { MOCK_CHAT_MESSAGES, MOCK_USER } from '@/lib/mock-data';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from '@/lib/use-session';
 import { CHAT_SUGGESTIONS } from '@/lib/constants';
 import { toast } from 'sonner';
 
 export function ChatInterface() {
-  const { user } = useAuth();
+  const { user } = useSession();
   const [messages, setMessages] = useState<ChatMessage[]>(MOCK_CHAT_MESSAGES);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

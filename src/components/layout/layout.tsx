@@ -4,11 +4,11 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from './header';
 import { Footer } from './footer';
 import { Sidebar } from './sidebar';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from '@/lib/use-session';
 import { cn } from '@/lib/utils';
 
 export function Layout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useSession();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (

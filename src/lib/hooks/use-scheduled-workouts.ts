@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../supabase';
+import { useCallback, useEffect, useState } from 'react';
+import { supabase, type Database } from '../supabase';
 import { useAuth } from '../auth-context';
 import { toast } from 'sonner';
 
@@ -30,70 +30,85 @@ export function useScheduledWorkouts(startDate?: Date, endDate?: Date) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchWorkouts();
-    } else {
-      setLoading(false);
-    }
-  }, [user, startDate, endDate]);
-
-  const fetchWorkouts = async () => {
+  const fetchWorkouts = useCallback(async () => {
     if (!user) return;
 
     try {
       setLoading(true);
       let query = supabase
         .from('scheduled_workouts')
-        .select(`
+        .select(
+          `
           *,
           video:workout_videos(*)
-        `)
+        `
+        )
         .eq('user_id', user.id)
         .order('scheduled_date', { ascending: true });
 
       if (startDate) {
-        query = query.gte('scheduled_date', startDate.toISOString().split('T')[0]);
+        query = query.gte(
+          'scheduled_date',
+          startDate.toISOString().split('T')[0]
+        );
       }
 
       if (endDate) {
-        query = query.lte('scheduled_date', endDate.toISOString().split('T')[0]);
+        query = query.lte(
+          'scheduled_date',
+          endDate.toISOString().split('T')[0]
+        );
       }
 
-      const { data, error } = await query;
+      type ScheduledWithVideo =
+        Database['public']['Tables']['scheduled_workouts']['Row'] & {
+          video?: Database['public']['Tables']['workout_videos']['Row'] | null;
+        };
+
+      const { data, error } = await query.returns<ScheduledWithVideo[]>();
 
       if (error) throw error;
 
-      const mappedWorkouts: ScheduledWorkout[] = (data || []).map((workout: any) => ({
+      const mappedWorkouts: ScheduledWorkout[] = (data ?? []).map((workout) => ({
         id: workout.id,
         userId: workout.user_id,
         videoId: workout.video_id,
         scheduledDate: workout.scheduled_date,
         isCompleted: workout.is_completed,
         completedAt: workout.completed_at,
-        video: workout.video ? {
-          id: workout.video.id,
-          youtubeId: workout.video.youtube_id,
-          title: workout.video.title,
-          channelName: workout.video.channel_name,
-          channelThumbnail: workout.video.channel_thumbnail,
-          thumbnailUrl: workout.video.thumbnail_url,
-          duration: workout.video.duration,
-          intensity: workout.video.intensity,
-          muscleGroups: workout.video.muscle_groups,
-          equipmentNeeded: workout.video.equipment_needed,
-        } : undefined,
+        video: workout.video
+          ? {
+              id: workout.video.id,
+              youtubeId: workout.video.youtube_id,
+              title: workout.video.title,
+              channelName: workout.video.channel_name,
+              channelThumbnail: workout.video.channel_thumbnail,
+              thumbnailUrl: workout.video.thumbnail_url,
+              duration: workout.video.duration,
+              intensity: workout.video.intensity,
+              muscleGroups: workout.video.muscle_groups,
+              equipmentNeeded: workout.video.equipment_needed,
+            }
+          : undefined,
       }));
 
       setWorkouts(mappedWorkouts);
       setError(null);
-    } catch (err: any) {
-      console.error('Error fetching scheduled workouts:', err);
-      setError(err.message);
+    } catch (error) {
+      console.error('Error fetching scheduled workouts:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load workouts');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, startDate, endDate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchWorkouts();
+    } else {
+      setLoading(false);
+    }
+  }, [user, fetchWorkouts]);
 
   const addWorkout = async (videoId: string, scheduledDate: string) => {
     if (!user) return;
@@ -112,9 +127,11 @@ export function useScheduledWorkouts(startDate?: Date, endDate?: Date) {
 
       await fetchWorkouts();
       toast.success('Workout added to calendar');
-    } catch (err: any) {
-      console.error('Error adding workout:', err);
-      toast.error(err.message || 'Failed to add workout');
+    } catch (error) {
+      console.error('Error adding workout:', error);
+      const message =
+        error instanceof Error ? error.message : 'Failed to add workout';
+      toast.error(message);
     }
   };
 
@@ -131,9 +148,11 @@ export function useScheduledWorkouts(startDate?: Date, endDate?: Date) {
       if (error) throw error;
 
       await fetchWorkouts();
-    } catch (err: any) {
-      console.error('Error toggling workout completion:', err);
-      toast.error(err.message || 'Failed to update workout');
+    } catch (error) {
+      console.error('Error toggling workout completion:', error);
+      const message =
+        error instanceof Error ? error.message : 'Failed to update workout';
+      toast.error(message);
     }
   };
 
@@ -148,9 +167,11 @@ export function useScheduledWorkouts(startDate?: Date, endDate?: Date) {
 
       await fetchWorkouts();
       toast.success('Workout removed from calendar');
-    } catch (err: any) {
-      console.error('Error removing workout:', err);
-      toast.error(err.message || 'Failed to remove workout');
+    } catch (error) {
+      console.error('Error removing workout:', error);
+      const message =
+        error instanceof Error ? error.message : 'Failed to remove workout';
+      toast.error(message);
     }
   };
 

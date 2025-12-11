@@ -1,17 +1,18 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Calendar, 
-  MessageSquare, 
-  Settings, 
-  User, 
-  Video, 
-  Home, 
+import {
+  Calendar,
+  MessageSquare,
+  Settings,
+  User,
+  Video,
+  Home,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useSession } from '@/lib/use-session';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,6 +21,9 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const location = useLocation();
+  const { isAuthenticated } = useSession();
+
+  if (!isAuthenticated) return null;
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
@@ -36,6 +40,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { href: '/profile', label: 'Profile', icon: User },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
+
+  if (!isAuthenticated) return null;
 
   return (
     <>

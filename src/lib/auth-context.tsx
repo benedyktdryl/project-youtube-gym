@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { AuthState, User } from './types';
-import { supabase } from './supabase';
+import { supabase, type Database } from './supabase';
 import { toast } from 'sonner';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -19,58 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  useEffect(() => {
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        loadUserProfile(session.user);
-      } else {
-        setAuthState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const checkUser = async () => {
+  const loadUserProfile = useCallback(async (supabaseUser: SupabaseUser) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        await loadUserProfile(session.user);
-      } else {
-        setAuthState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    } catch (error) {
-      console.error('Error checking user:', error);
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    }
-  };
-
-  const loadUserProfile = async (supabaseUser: SupabaseUser) => {
-    try {
-      const { data: profile, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
         .maybeSingle();
 
       if (error) throw error;
+
+      const profile = data as Database['public']['Tables']['profiles']['Row'] | null;
 
       if (profile) {
         const user: User = {
@@ -94,7 +59,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading: false,
       });
     }
-  };
+  }, []);
+
+  const checkUser = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        await loadUserProfile(session.user);
+      } else {
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  }, [loadUserProfile]);
+
+  useEffect(() => {
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUserProfile(session.user);
+      } else {
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [checkUser, loadUserProfile]);
 
   const login = async (email: string, password: string) => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
@@ -111,9 +119,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await loadUserProfile(data.user);
         toast.success('Logged in successfully');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Invalid credentials');
+      const message = error instanceof Error ? error.message : 'Invalid credentials';
+      toast.error(message);
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -132,33 +141,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            id: data.user.id,
-            name,
-            avatar_url: null,
-          });
+          .insert(
+            {
+              id: data.user.id,
+              name,
+              avatar_url: null,
+            } satisfies Database['public']['Tables']['profiles']['Insert']
+          );
 
         if (profileError) throw profileError;
 
         const { error: preferencesError } = await supabase
           .from('user_preferences')
-          .insert({
-            user_id: data.user.id,
-            goal: 'general-fitness',
-            preferred_duration: 30,
-            preferred_intensity: 'medium',
-            available_equipment: [],
-            preferred_days: [],
-          });
+          .insert(
+            {
+              user_id: data.user.id,
+              goal: 'general-fitness',
+              preferred_duration: 30,
+              preferred_intensity: 'medium',
+              available_equipment: [],
+              preferred_days: [],
+            } satisfies Database['public']['Tables']['user_preferences']['Insert']
+          );
 
         if (preferencesError) throw preferencesError;
 
         await loadUserProfile(data.user);
         toast.success('Account created successfully');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'An error occurred during registration');
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred during registration';
+      toast.error(message);
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -172,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading: false,
       });
       toast.success('Logged out successfully');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Logout error:', error);
       toast.error('An error occurred during logout');
     }

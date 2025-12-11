@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Menu, 
-  LogOut, 
-  User, 
-  Settings, 
-  Dumbbell 
+import {
+  Menu,
+  LogOut,
+  User,
+  Settings,
+  Dumbbell,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from '@/lib/use-session';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +18,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useFetcher } from 'react-router-dom';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useSession();
+  const logoutFetcher = useFetcher();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -67,7 +69,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+                    <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.name} />
                     <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -97,7 +99,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logout()}>
+                <DropdownMenuItem
+                  onClick={() => logoutFetcher.submit(null, { method: 'post', action: '/logout' })}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

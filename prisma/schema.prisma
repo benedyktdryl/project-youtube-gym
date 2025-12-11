@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ChatRole {
+  user
+  assistant
+}
+
+model User {
+  id           String            @id @default(uuid()) @db.Uuid
+  email        String            @unique
+  passwordHash String            @map("password_hash")
+  name         String
+  avatarUrl    String?           @map("avatar_url")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  preferences  UserPreference?
+  workouts     ScheduledWorkout[]
+  messages     ChatMessage[]
+
+  @@map("users")
+}
+
+model UserPreference {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @unique @db.Uuid @map("user_id")
+  goal               String    @default("general-fitness")
+  preferredDuration  Int       @default(30) @map("preferred_duration")
+  preferredIntensity String    @default("medium") @map("preferred_intensity")
+  availableEquipment String[]  @default([]) @map("available_equipment")
+  preferredDays      String[]  @default([]) @map("preferred_days")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model WorkoutVideo {
+  id               String           @id @default(uuid()) @db.Uuid
+  youtubeId        String           @unique @map("youtube_id")
+  title            String
+  channelName      String           @map("channel_name")
+  channelThumbnail String           @map("channel_thumbnail")
+  thumbnailUrl     String           @map("thumbnail_url")
+  duration         Int
+  intensity        String
+  muscleGroups     String[]         @default([]) @map("muscle_groups")
+  equipmentNeeded  String[]         @default([]) @map("equipment_needed")
+  exercises        Json             @default("[]")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  scheduled        ScheduledWorkout[]
+
+  @@map("workout_videos")
+}
+
+model ScheduledWorkout {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @db.Uuid @map("user_id")
+  videoId       String       @db.Uuid @map("video_id")
+  scheduledDate DateTime     @map("scheduled_date")
+  isCompleted   Boolean      @default(false) @map("is_completed")
+  completedAt   DateTime?    @map("completed_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video         WorkoutVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId, scheduledDate], map: "user_video_date_unique")
+  @@index([userId, scheduledDate], map: "idx_scheduled_workouts_user_date")
+  @@map("scheduled_workouts")
+}
+
+model ChatMessage {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid @map("user_id")
+  role      ChatRole
+  content   String
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "idx_chat_messages_user_created")
+  @@map("chat_messages")
+}

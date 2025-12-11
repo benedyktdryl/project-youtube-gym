@@ -38,7 +38,7 @@ export function RegisterForm() {
     try {
       await register(values.email, values.password, values.name);
       navigate('/dashboard');
-    } catch (err) {
+    } catch {
       setError('An error occurred during registration. Please try again.');
     }
   };

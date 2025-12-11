@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  redirect,
+} from 'react-router-dom';
 import { Layout } from '@/components/layout/layout';
 import { HomePage } from '@/pages/home-page';
 import { LoginPage } from '@/pages/login-page';
@@ -10,79 +14,173 @@ import { VideosPage } from '@/pages/videos-page';
 import { VideoDetailPage } from '@/pages/video-detail-page';
 import { ProfilePage } from '@/pages/profile-page';
 import { SettingsPage } from '@/pages/settings-page';
-import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from '@/lib/theme-provider';
-import { useAuth } from '@/lib/auth-context';
-import { Navigate } from 'react-router-dom';
+import { apiFetch, setToken, getToken } from '@/lib/api-client';
 import { useEffect } from 'react';
+import type { WorkoutVideo, UserPreferences } from '@/lib/types';
 
-// Protected route wrapper
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+type SessionUser = {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+};
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+type RootLoaderData = {
+  user: SessionUser | null;
+};
+
+async function sessionLoader(): Promise<RootLoaderData> {
+  try {
+    const data = await apiFetch<{ user: SessionUser }>('/auth/session');
+    return { user: data.user };
+  } catch (err) {
+    if ((err as any)?.status === 401) {
+      return { user: null };
+    }
+    throw err;
   }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
 }
 
-// Create router
+async function requireUser() {
+  const token = getToken();
+  if (!token) throw redirect('/login');
+  const data = await apiFetch<{ user: SessionUser }>('/auth/session');
+  return data.user;
+}
+
+async function loginAction({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const email = String(formData.get('email') || '');
+  const password = String(formData.get('password') || '');
+
+  if (!email || !password) {
+    const err: any = new Error('Email and password are required');
+    err.status = 400;
+    throw err;
+  }
+
+  const data = await apiFetch<{ user: SessionUser; token: string }>(
+    '/auth/login',
+    {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }
+  );
+
+  setToken(data.token);
+  return redirect('/dashboard');
+}
+
+async function registerAction({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const email = String(formData.get('email') || '');
+  const password = String(formData.get('password') || '');
+  const name = String(formData.get('name') || '');
+
+  if (!email || !password || !name) {
+    const err: any = new Error('Name, email, and password are required');
+    err.status = 400;
+    throw err;
+  }
+
+  const data = await apiFetch<{ user: SessionUser; token: string }>(
+    '/auth/register',
+    {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name }),
+    }
+  );
+
+  setToken(data.token);
+  return redirect('/dashboard');
+}
+
+async function logoutAction() {
+  await apiFetch('/auth/logout', { method: 'POST' });
+  setToken(null);
+  return redirect('/login');
+}
+
+async function videosLoader() {
+  await requireUser();
+  const data = await apiFetch<{ videos: WorkoutVideo[] }>('/videos');
+  return data.videos;
+}
+
+async function videoDetailLoader({ params }: { params: { id?: string } }) {
+  await requireUser();
+  if (!params.id) throw redirect('/videos');
+  const data = await apiFetch<{ video: WorkoutVideo }>(`/videos/${params.id}`);
+  return data.video;
+}
+
+async function preferencesLoader() {
+  const user = await requireUser();
+  const data = await apiFetch<{ preferences: UserPreferences | null }>(
+    '/preferences'
+  );
+  return { user, preferences: data.preferences };
+}
+
+async function updatePreferencesAction({ request }: { request: Request }) {
+  await requireUser();
+  const formData = await request.formData();
+  const payload = {
+    goal: formData.get('goal') as string | null,
+    preferredDuration: Number(formData.get('preferredDuration') || 0),
+    preferredIntensity: formData.get('preferredIntensity') as string | null,
+    availableEquipment: (formData.getAll('availableEquipment') as string[]) ?? [],
+    preferredDays: (formData.getAll('preferredDays') as string[]) ?? [],
+  };
+
+  await apiFetch('/preferences', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+
+  return redirect('/settings');
+}
+
 const router = createBrowserRouter([
   {
+    id: 'root',
     path: '/',
+    loader: sessionLoader,
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
-      { 
-        path: 'dashboard', 
-        element: <ProtectedRoute><DashboardPage /></ProtectedRoute> 
+      { path: 'login', element: <LoginPage />, action: loginAction },
+      { path: 'register', element: <RegisterPage />, action: registerAction },
+      { path: 'dashboard', element: <DashboardPage />, loader: requireUser },
+      { path: 'chat', element: <ChatPage />, loader: requireUser },
+      { path: 'calendar', element: <CalendarPage />, loader: requireUser },
+      { path: 'videos', element: <VideosPage />, loader: videosLoader },
+      {
+        path: 'videos/:id',
+        element: <VideoDetailPage />,
+        loader: videoDetailLoader,
       },
-      { 
-        path: 'chat', 
-        element: <ProtectedRoute><ChatPage /></ProtectedRoute> 
+      { path: 'profile', element: <ProfilePage />, loader: requireUser },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
+        loader: preferencesLoader,
+        action: updatePreferencesAction,
       },
-      { 
-        path: 'calendar', 
-        element: <ProtectedRoute><CalendarPage /></ProtectedRoute> 
-      },
-      { 
-        path: 'videos', 
-        element: <ProtectedRoute><VideosPage /></ProtectedRoute> 
-      },
-      { 
-        path: 'videos/:id', 
-        element: <ProtectedRoute><VideoDetailPage /></ProtectedRoute> 
-      },
-      { 
-        path: 'profile', 
-        element: <ProtectedRoute><ProfilePage /></ProtectedRoute> 
-      },
-      { 
-        path: 'settings', 
-        element: <ProtectedRoute><SettingsPage /></ProtectedRoute> 
-      },
+      { path: 'logout', action: logoutAction },
     ],
   },
 ]);
 
 function App() {
-  // Update document title
   useEffect(() => {
     document.title = 'TrainFlow - YouTube Workout Planner';
   }, []);
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="trainflow-theme">
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+      <RouterProvider router={router} />
     </ThemeProvider>
   );
 }

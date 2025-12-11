@@ -1,11 +1,11 @@
-import { useAuth } from '@/lib/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSession } from '@/lib/use-session';
 
 export function WelcomeCard() {
-  const { user } = useAuth();
+  const { user } = useSession();
   
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
