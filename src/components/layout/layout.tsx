@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { Toaster } from '@/components/ui/sonner';
 import { Header } from './header';
 import { Footer } from './footer';

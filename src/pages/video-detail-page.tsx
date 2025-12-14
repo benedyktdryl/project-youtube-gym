@@ -1,16 +1,12 @@
-import { useParams, Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router';
 import { VideoPlayer } from '@/components/videos/video-player';
-import { MOCK_VIDEOS } from '@/lib/mock-data';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { WorkoutVideo } from '@/lib/types';
 
 export function VideoDetailPage() {
-  const { id } = useParams();
-  
-  // In a real app, we would fetch the video data from the API
-  // For now, we'll just filter the mock data
-  const video = MOCK_VIDEOS.find((v) => v.id === id);
-  
+  const { video } = useLoaderData<{ video: WorkoutVideo }>();
+
   if (!video) {
     return (
       <div className="flex flex-col items-center justify-center py-12">

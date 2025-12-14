@@ -10,14 +10,19 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Calendar, Clock, Video, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { MOCK_WORKOUT_WEEK } from '@/lib/mock-data';
+import { Link } from 'react-router';
+import type { SerializedWorkoutDay } from '@/lib/types';
 
-export function UpcomingWorkouts() {
-  // Filter for upcoming workouts only
-  const upcomingWorkouts = MOCK_WORKOUT_WEEK.filter(
-    (day) => !day.isCompleted && day.videos.length > 0
-  ).slice(0, 3);
+type UpcomingWorkoutsProps = {
+  workouts: SerializedWorkoutDay[];
+};
+
+export function UpcomingWorkouts({ workouts }: UpcomingWorkoutsProps) {
+  const upcomingWorkouts = workouts
+    .map((day) => ({ ...day, date: new Date(day.date) }))
+    .filter((day) => !day.isCompleted && day.videos.length > 0)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .slice(0, 3);
 
   if (upcomingWorkouts.length === 0) {
     return (

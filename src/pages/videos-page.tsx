@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useLoaderData } from 'react-router';
 import { VideoCard } from '@/components/videos/video-card';
 import { VideoFilters } from '@/components/videos/video-filters';
-import { useWorkoutVideos } from '@/lib/hooks/use-workout-videos';
+import type { WorkoutVideo } from '@/lib/types';
 
 export function VideosPage() {
-  const { videos, loading } = useWorkoutVideos();
+  const { videos } = useLoaderData<{ videos: WorkoutVideo[] }>();
   const [filters, setFilters] = useState({
     search: '',
     muscleGroups: [] as string[],
@@ -70,25 +71,19 @@ export function VideosPage() {
 
       <VideoFilters onFiltersChange={setFilters} />
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-muted animate-pulse rounded-lg" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVideos.length > 0 ? (
-            filteredVideos.map((video) => (
-              <VideoCard key={video.id} video={video} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground">No videos match your filters. Try adjusting your search criteria.</p>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredVideos.length > 0 ? (
+          filteredVideos.map((video) => (
+            <VideoCard key={video.id} video={video} />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <p className="text-muted-foreground">
+              No videos match your filters. Try adjusting your search criteria.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

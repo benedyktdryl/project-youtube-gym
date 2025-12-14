@@ -1,10 +1,14 @@
+import { useLoaderData } from 'react-router';
 import { WelcomeCard } from '@/components/dashboard/welcome-card';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
 import { UpcomingWorkouts } from '@/components/dashboard/upcoming-workouts';
 import { Calendar, CircleCheck as CheckCircle2, Dumbbell, Flame } from 'lucide-react';
+import type { SerializedWorkoutDay } from '@/lib/types';
 
 export function DashboardPage() {
+  const { workoutDays } = useLoaderData<{ workoutDays: SerializedWorkoutDay[] }>();
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -47,7 +51,7 @@ export function DashboardPage() {
           <ActivityChart />
         </div>
         <div className="lg:col-span-2">
-          <UpcomingWorkouts />
+          <UpcomingWorkouts workouts={workoutDays} />
         </div>
       </div>
     </div>

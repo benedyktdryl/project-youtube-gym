@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useFetcher, useLocation } from 'react-router';
 import {
   Menu,
   LogOut,
@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useFetcher } from 'react-router-dom';
 
 interface HeaderProps {
   onMenuClick: () => void;

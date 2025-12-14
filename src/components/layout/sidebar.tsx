@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import {
   Calendar,
   MessageSquare,
@@ -22,8 +22,6 @@ interface SidebarProps {
 export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const location = useLocation();
   const { isAuthenticated } = useSession();
-
-  if (!isAuthenticated) return null;
 
   // Close sidebar when route changes on mobile
   useEffect(() => {

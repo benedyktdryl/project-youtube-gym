@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useFetcher } from 'react-router';
 import { Check as CheckIcon, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,34 +38,63 @@ import {
   WORKOUT_GOALS
 } from '@/lib/constants';
 import { UserPreferences } from '@/lib/types';
-import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
+import { toast } from 'sonner';
 
-export function PreferencesForm() {
-  const { preferences: userPrefs, loading, updatePreferences } = useUserPreferences();
-  const [localPreferences, setLocalPreferences] = useState<Partial<UserPreferences>>({
-    goal: 'general-fitness',
-    preferredDuration: 30,
-    preferredIntensity: 'medium',
-    availableEquipment: [],
-    preferredDays: [],
-  });
+interface PreferencesFormProps {
+  preferences: UserPreferences | null;
+}
+
+export function PreferencesForm({ preferences }: PreferencesFormProps) {
+  const fetcher = useFetcher();
+  const [localPreferences, setLocalPreferences] = useState<Partial<UserPreferences>>(
+    preferences ?? {
+      goal: 'general-fitness',
+      preferredDuration: 30,
+      preferredIntensity: 'medium',
+      availableEquipment: [],
+      preferredDays: [],
+    }
+  );
   const [openEquipment, setOpenEquipment] = useState(false);
   const [openDays, setOpenDays] = useState(false);
 
   useEffect(() => {
-    if (userPrefs) {
+    if (preferences) {
       setLocalPreferences({
-        goal: userPrefs.goal,
-        preferredDuration: userPrefs.preferredDuration,
-        preferredIntensity: userPrefs.preferredIntensity,
-        availableEquipment: userPrefs.availableEquipment,
-        preferredDays: userPrefs.preferredDays,
+        goal: preferences.goal,
+        preferredDuration: preferences.preferredDuration,
+        preferredIntensity: preferences.preferredIntensity,
+        availableEquipment: preferences.availableEquipment,
+        preferredDays: preferences.preferredDays,
       });
     }
-  }, [userPrefs]);
+  }, [preferences]);
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data?.ok) {
+      toast.success('Preferences updated successfully');
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const handleSavePreferences = async () => {
-    await updatePreferences(localPreferences);
+    const formData = new FormData();
+    formData.append('goal', localPreferences.goal || 'general-fitness');
+    formData.append(
+      'preferredDuration',
+      String(localPreferences.preferredDuration ?? 30)
+    );
+    formData.append(
+      'preferredIntensity',
+      (localPreferences.preferredIntensity as string) ?? 'medium'
+    );
+    (localPreferences.availableEquipment || []).forEach((item) =>
+      formData.append('availableEquipment', item)
+    );
+    (localPreferences.preferredDays || []).forEach((day) =>
+      formData.append('preferredDays', day)
+    );
+
+    fetcher.submit(formData, { method: 'post', action: '/settings' });
   };
 
   const toggleEquipment = (id: string) => {
@@ -100,20 +130,6 @@ export function PreferencesForm() {
       }
     });
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="h-64 flex items-center justify-center">
-              <p className="text-muted-foreground">Loading preferences...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -340,7 +356,9 @@ export function PreferencesForm() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Button onClick={handleSavePreferences}>Save Preferences</Button>
+          <Button onClick={handleSavePreferences} disabled={fetcher.state !== 'idle'}>
+            {fetcher.state === 'submitting' ? 'Saving...' : 'Save Preferences'}
+          </Button>
         </CardFooter>
       </Card>
     </div>

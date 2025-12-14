@@ -1,103 +1,53 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Form, Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/lib/auth-context';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-});
+type LoginFormProps = {
+  error?: string | null;
+  isSubmitting?: boolean;
+};
 
-export function LoginForm() {
-  const { login, isLoading } = useAuth();
-  const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    setError(null);
-    try {
-      await login(values.email, values.password);
-      navigate('/dashboard');
-    } catch {
-      setError('An error occurred during login. Please try again.');
-    }
-  };
-
+export function LoginForm({ error, isSubmitting }: LoginFormProps) {
   return (
     <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg shadow-lg">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Welcome back</h1>
         <p className="text-muted-foreground">Enter your credentials to sign in</p>
       </div>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
+
+      <Form method="post" className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Email</label>
+          <Input
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="name@example.com" 
-                    {...field} 
-                    className="w-full" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            placeholder="name@example.com"
+            required
+            className="w-full"
+            autoComplete="email"
           />
-          
-          <FormField
-            control={form.control}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Password</label>
+          <Input
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    {...field} 
-                    className="w-full" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="password"
+            placeholder="••••••••"
+            required
+            minLength={6}
+            className="w-full"
+            autoComplete="current-password"
           />
-          
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link to="/forgot-password" className="text-primary hover:underline">
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign in'}
-          </Button>
-        </form>
+        </div>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Signing in...' : 'Sign in'}
+        </Button>
       </Form>
-      
+
       <div className="text-center space-y-3">
         <p className="text-sm">
           Don't have an account?{' '}

@@ -35,6 +35,7 @@ export interface WorkoutGoal {
 
 export interface WorkoutVideo {
   id: string;
+  scheduledId?: string;
   title: string;
   youtubeId: string;
   channelName: string;
@@ -61,6 +62,8 @@ export interface WorkoutDay {
   videos: WorkoutVideo[];
   isCompleted: boolean;
 }
+
+export type SerializedWorkoutDay = Omit<WorkoutDay, 'date'> & { date: string };
 
 export interface UserPreferences {
   userId: string;

@@ -1,135 +1,68 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Form, Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/lib/auth-context';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-const registerSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+type RegisterFormProps = {
+  error?: string | null;
+  isSubmitting?: boolean;
+};
 
-export function RegisterForm() {
-  const { register, isLoading } = useAuth();
-  const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
-    setError(null);
-    try {
-      await register(values.email, values.password, values.name);
-      navigate('/dashboard');
-    } catch {
-      setError('An error occurred during registration. Please try again.');
-    }
-  };
-
+export function RegisterForm({ error, isSubmitting }: RegisterFormProps) {
   return (
     <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg shadow-lg">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Create an account</h1>
         <p className="text-muted-foreground">Enter your information to get started</p>
       </div>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="John Doe" 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
+
+      <Form method="post" className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Name</label>
+          <Input name="name" placeholder="John Doe" required minLength={2} />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Email</label>
+          <Input
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="name@example.com" 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            placeholder="name@example.com"
+            autoComplete="email"
+            required
           />
-          
-          <FormField
-            control={form.control}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Password</label>
+          <Input
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="password"
+            placeholder="••••••••"
+            minLength={8}
+            autoComplete="new-password"
+            required
           />
-          
-          <FormField
-            control={form.control}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Confirm Password</label>
+          <Input
             name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="password"
+            placeholder="••••••••"
+            minLength={8}
+            autoComplete="new-password"
+            required
           />
-          
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Create account'}
-          </Button>
-        </form>
+        </div>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating account...' : 'Create account'}
+        </Button>
       </Form>
-      
+
       <div className="text-center">
         <p className="text-sm">
           Already have an account?{' '}
