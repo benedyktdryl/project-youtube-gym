@@ -33,7 +33,9 @@ export function Layout() {
         </main>
       </div>
       
-      <Footer />
+      <div className={cn(isAuthenticated && 'md:ml-64')}>
+        <Footer />
+      </div>
       <Toaster />
     </div>
   );
