@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
-import { useLoaderData } from 'react-router';
-import { VideoCard } from '@/components/videos/video-card';
-import { VideoFilters } from '@/components/videos/video-filters';
-import type { WorkoutVideo } from '@/lib/types';
+import { VideoCard } from "@/components/videos/video-card";
+import { VideoFilters } from "@/components/videos/video-filters";
+import type { WorkoutVideo } from "@/lib/types";
+import { useMemo, useState } from "react";
+import { useLoaderData } from "react-router";
 
 export function VideosPage() {
   const { videos } = useLoaderData<{ videos: WorkoutVideo[] }>();
   const [filters, setFilters] = useState({
-    search: '',
+    search: "",
     muscleGroups: [] as string[],
     equipment: [] as string[],
     intensity: [] as string[],
@@ -16,10 +16,7 @@ export function VideosPage() {
 
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
-      if (
-        filters.search &&
-        !video.title.toLowerCase().includes(filters.search.toLowerCase())
-      ) {
+      if (filters.search && !video.title.toLowerCase().includes(filters.search.toLowerCase())) {
         return false;
       }
 
@@ -32,18 +29,16 @@ export function VideosPage() {
 
       if (
         filters.equipment.length > 0 &&
-        !filters.equipment.every((eq) =>
-          video.equipmentNeeded.includes(eq) ||
-          (eq === 'none' && video.equipmentNeeded.length === 0)
+        !filters.equipment.every(
+          (eq) =>
+            video.equipmentNeeded.includes(eq) ||
+            (eq === "none" && video.equipmentNeeded.length === 0),
         )
       ) {
         return false;
       }
 
-      if (
-        filters.intensity.length > 0 &&
-        !filters.intensity.includes(video.intensity)
-      ) {
+      if (filters.intensity.length > 0 && !filters.intensity.includes(video.intensity)) {
         return false;
       }
 
@@ -66,16 +61,15 @@ export function VideosPage() {
       </div>
 
       <p className="text-muted-foreground">
-        Discover workout videos from top YouTube fitness creators, filtered to match your preferences.
+        Discover workout videos from top YouTube fitness creators, filtered to match your
+        preferences.
       </p>
 
       <VideoFilters onFiltersChange={setFilters} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredVideos.length > 0 ? (
-          filteredVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
-          ))
+          filteredVideos.map((video) => <VideoCard key={video.id} video={video} />)
         ) : (
           <div className="col-span-full text-center py-12">
             <p className="text-muted-foreground">

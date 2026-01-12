@@ -1,6 +1,7 @@
-import { Form, Link } from 'react-router';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, Link } from "react-router";
 
 type LoginFormProps = {
   error?: string | null;
@@ -15,10 +16,24 @@ export function LoginForm({ error, isSubmitting }: LoginFormProps) {
         <p className="text-muted-foreground">Enter your credentials to sign in</p>
       </div>
 
+      <SocialAuthButtons />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">Or sign in with email</span>
+        </div>
+      </div>
+
       <Form method="post" className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
+          <label className="text-sm font-medium" htmlFor="login-email">
+            Email
+          </label>
           <Input
+            id="login-email"
             name="email"
             type="email"
             placeholder="name@example.com"
@@ -29,8 +44,11 @@ export function LoginForm({ error, isSubmitting }: LoginFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Password</label>
+          <label className="text-sm font-medium" htmlFor="login-password">
+            Password
+          </label>
           <Input
+            id="login-password"
             name="password"
             type="password"
             placeholder="••••••••"
@@ -44,13 +62,13 @@ export function LoginForm({ error, isSubmitting }: LoginFormProps) {
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
+          {isSubmitting ? "Signing in..." : "Sign in"}
         </Button>
       </Form>
 
       <div className="text-center space-y-3">
         <p className="text-sm">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="text-primary hover:underline">
             Sign up
           </Link>

@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
-import { Dumbbell, Github, Heart } from 'lucide-react';
+import { Dumbbell, Github, Heart } from "lucide-react";
+import { Link } from "react-router";
 
 export function Footer() {
   return (
@@ -20,17 +20,26 @@ export function Footer() {
               <h3 className="text-sm font-medium">Product</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/features" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/features"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/pricing"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link to="/faq" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/faq"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     FAQ
                   </Link>
                 </li>
@@ -40,17 +49,26 @@ export function Footer() {
               <h3 className="text-sm font-medium">Resources</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/blog"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link to="/tutorials" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/tutorials"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Tutorials
                   </Link>
                 </li>
                 <li>
-                  <Link to="/support" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/support"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Support
                   </Link>
                 </li>
@@ -60,17 +78,26 @@ export function Footer() {
               <h3 className="text-sm font-medium">Company</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/about"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     About
                   </Link>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/contact"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Contact
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link
+                    to="/terms"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Terms
                   </Link>
                 </li>
@@ -83,10 +110,10 @@ export function Footer() {
             © {new Date().getFullYear()} TrainFlow. All rights reserved.
           </p>
           <div className="flex items-center space-x-4">
-            <a 
-              href="https://github.com" 
-              target="_blank" 
-              rel="noreferrer" 
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <Github className="h-4 w-4" />

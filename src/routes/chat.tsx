@@ -1,11 +1,11 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { prisma } from '@/lib/prisma.server';
-import { requireUserId } from '@/lib/session.server';
-import { ChatPage } from '@/pages/chat-page';
+import { prisma } from "@/lib/prisma.server";
+import { requireUserId } from "@/lib/session.server";
+import { ChatPage } from "@/pages/chat-page";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 type ChatMessagePayload = {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   createdAt: string;
 };
@@ -15,7 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const messages = await prisma.chatMessage.findMany({
     where: { userId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: "asc" },
   });
 
   const mapped: ChatMessagePayload[] = messages.map((message) => ({
@@ -31,16 +31,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  const content = String(formData.get('message') ?? '').trim();
+  const content = String(formData.get("message") ?? "").trim();
 
   if (!content) {
-    return Response.json({ error: 'Message content is required' }, { status: 400 });
+    return Response.json({ error: "Message content is required" }, { status: 400 });
   }
 
   const userMessage = await prisma.chatMessage.create({
     data: {
       userId,
-      role: 'user',
+      role: "user",
       content,
     },
   });
@@ -48,9 +48,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const assistantMessage = await prisma.chatMessage.create({
     data: {
       userId,
-      role: 'assistant',
-      content:
-        'I logged your update. Want me to adjust your plan or schedule a new session?',
+      role: "assistant",
+      content: "I logged your update. Want me to adjust your plan or schedule a new session?",
     },
   });
 

@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { MOCK_VIDEOS } from "@/lib/mock-data";
 import {
   ArrowRight,
   Calendar,
@@ -9,9 +9,9 @@ import {
   MonitorPlay,
   MoveRight,
   Sparkles,
-  Trophy
-} from 'lucide-react';
-import { MOCK_VIDEOS } from '@/lib/mock-data';
+  Trophy,
+} from "lucide-react";
+import { Link } from "react-router";
 
 export function HomePage() {
   return (
@@ -26,7 +26,8 @@ export function HomePage() {
                   Your Smart YouTube Workout Planner
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  TrainFlow creates personalized workout plans using YouTube videos based on your goals, available equipment, and schedule.
+                  TrainFlow creates personalized workout plans using YouTube videos based on your
+                  goals, available equipment, and schedule.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 min-[400px]:gap-4">
@@ -36,9 +37,7 @@ export function HomePage() {
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="px-8 text-base">
-                  <Link to="/chat">
-                    Try the AI Assistant
-                  </Link>
+                  <Link to="/chat">Try the AI Assistant</Link>
                 </Button>
               </div>
             </div>
@@ -69,7 +68,8 @@ export function HomePage() {
                 Everything You Need for Your Workout Journey
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                TrainFlow helps you create personalized workout plans with AI, manages your schedule, and keeps you motivated.
+                TrainFlow helps you create personalized workout plans with AI, manages your
+                schedule, and keeps you motivated.
               </p>
             </div>
           </div>
@@ -80,7 +80,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">AI Assistant</h3>
               <p className="text-center text-muted-foreground">
-                Chat with our AI to create personalized workout plans based on your goals and preferences.
+                Chat with our AI to create personalized workout plans based on your goals and
+                preferences.
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 border p-6 rounded-lg bg-card transition-all hover:shadow-md">
@@ -89,7 +90,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">YouTube Integration</h3>
               <p className="text-center text-muted-foreground">
-                Access thousands of workout videos from top YouTube fitness creators all in one place.
+                Access thousands of workout videos from top YouTube fitness creators all in one
+                place.
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 border p-6 rounded-lg bg-card transition-all hover:shadow-md">
@@ -107,7 +109,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Personalized Plans</h3>
               <p className="text-center text-muted-foreground">
-                Get workout recommendations based on your available equipment, fitness level, and goals.
+                Get workout recommendations based on your available equipment, fitness level, and
+                goals.
               </p>
             </div>
             <div className="flex flex-col items-center space-y-2 border p-6 rounded-lg bg-card transition-all hover:shadow-md">
@@ -137,9 +140,7 @@ export function HomePage() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
-                Popular Workouts
-              </h2>
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Popular Workouts</h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Discover trending workout videos from top fitness creators on YouTube
               </p>
@@ -149,9 +150,9 @@ export function HomePage() {
             {MOCK_VIDEOS.slice(0, 3).map((video) => (
               <div key={video.id} className="group relative overflow-hidden rounded-lg bg-card">
                 <div className="aspect-video overflow-hidden">
-                  <img 
-                    src={video.thumbnailUrl} 
-                    alt={video.title} 
+                  <img
+                    src={video.thumbnailUrl}
+                    alt={video.title}
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -162,9 +163,9 @@ export function HomePage() {
                 </div>
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <img 
-                      src={video.channelThumbnail} 
-                      alt={video.channelName} 
+                    <img
+                      src={video.channelThumbnail}
+                      alt={video.channelName}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                     <span className="text-sm">{video.channelName}</span>
@@ -212,7 +213,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Tell Us Your Goals</h3>
               <p className="text-center text-muted-foreground">
-                Chat with our AI assistant about your fitness goals, available equipment, and schedule preferences.
+                Chat with our AI assistant about your fitness goals, available equipment, and
+                schedule preferences.
               </p>
             </div>
             <div className="flex flex-col items-center space-y-3">
@@ -221,7 +223,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Get Your Plan</h3>
               <p className="text-center text-muted-foreground">
-                Receive a personalized workout plan with curated YouTube videos tailored to your specific needs.
+                Receive a personalized workout plan with curated YouTube videos tailored to your
+                specific needs.
               </p>
             </div>
             <div className="flex flex-col items-center space-y-3">
@@ -230,7 +233,8 @@ export function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Track Your Progress</h3>
               <p className="text-center text-muted-foreground">
-                Follow your workout calendar, complete exercises, and track your fitness journey over time.
+                Follow your workout calendar, complete exercises, and track your fitness journey
+                over time.
               </p>
             </div>
           </div>
@@ -256,9 +260,9 @@ export function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
             <div className="flex flex-col p-6 bg-background rounded-lg shadow-sm">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                  alt="User avatar" 
+                <img
+                  src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                  alt="User avatar"
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
@@ -267,14 +271,15 @@ export function HomePage() {
                 </div>
               </div>
               <p className="text-muted-foreground">
-                "TrainFlow made it so easy to find workouts I can do at home with minimal equipment. The AI suggestions are spot on and I love being able to plan my week in advance."
+                "TrainFlow made it so easy to find workouts I can do at home with minimal equipment.
+                The AI suggestions are spot on and I love being able to plan my week in advance."
               </p>
             </div>
             <div className="flex flex-col p-6 bg-background rounded-lg shadow-sm">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                  alt="User avatar" 
+                <img
+                  src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                  alt="User avatar"
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
@@ -283,14 +288,15 @@ export function HomePage() {
                 </div>
               </div>
               <p className="text-muted-foreground">
-                "I've been following fitness YouTubers for years, but TrainFlow helps me organize all their content into a structured plan. Game changer for my workout consistency!"
+                "I've been following fitness YouTubers for years, but TrainFlow helps me organize
+                all their content into a structured plan. Game changer for my workout consistency!"
               </p>
             </div>
             <div className="flex flex-col p-6 bg-background rounded-lg shadow-sm">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                  alt="User avatar" 
+                <img
+                  src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                  alt="User avatar"
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
@@ -299,7 +305,9 @@ export function HomePage() {
                 </div>
               </div>
               <p className="text-muted-foreground">
-                "As someone with a packed schedule, I love that TrainFlow helps me find shorter workouts that still target the right muscle groups. The calendar integration is perfect for my lifestyle."
+                "As someone with a packed schedule, I love that TrainFlow helps me find shorter
+                workouts that still target the right muscle groups. The calendar integration is
+                perfect for my lifestyle."
               </p>
             </div>
           </div>
@@ -315,19 +323,16 @@ export function HomePage() {
                 Ready to Transform Your Workout Routine?
               </h2>
               <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Join TrainFlow today and start your journey to a more organized and effective fitness plan.
+                Join TrainFlow today and start your journey to a more organized and effective
+                fitness plan.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 min-[400px]:gap-4">
               <Button asChild size="lg" className="text-base">
-                <Link to="/register">
-                  Start Free
-                </Link>
+                <Link to="/register">Start Free</Link>
               </Button>
               <Button variant="outline" asChild size="lg" className="text-base">
-                <Link to="/chat">
-                  Try the AI Assistant
-                </Link>
+                <Link to="/chat">Try the AI Assistant</Link>
               </Button>
             </div>
           </div>
@@ -358,7 +363,9 @@ export function HomePage() {
                   <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-muted-foreground">
-                  TrainFlow offers a free plan with limited features. Premium plans start at $5.99/month with additional features like advanced AI recommendations, unlimited workout plans, and Google Calendar integration.
+                  TrainFlow offers a free plan with limited features. Premium plans start at
+                  $5.99/month with additional features like advanced AI recommendations, unlimited
+                  workout plans, and Google Calendar integration.
                 </p>
               </details>
             </div>
@@ -369,7 +376,9 @@ export function HomePage() {
                   <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-muted-foreground">
-                  Not at all! TrainFlow can recommend workouts based on whatever equipment you have available, including no-equipment options. Just tell our AI assistant what you have access to, and we'll find suitable workouts.
+                  Not at all! TrainFlow can recommend workouts based on whatever equipment you have
+                  available, including no-equipment options. Just tell our AI assistant what you
+                  have access to, and we'll find suitable workouts.
                 </p>
               </details>
             </div>
@@ -380,7 +389,9 @@ export function HomePage() {
                   <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-muted-foreground">
-                  Yes! TrainFlow seamlessly integrates with Google Calendar, allowing you to sync your workout schedule with your personal calendar for better planning and reminders.
+                  Yes! TrainFlow seamlessly integrates with Google Calendar, allowing you to sync
+                  your workout schedule with your personal calendar for better planning and
+                  reminders.
                 </p>
               </details>
             </div>
@@ -391,7 +402,9 @@ export function HomePage() {
                   <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-muted-foreground">
-                  Our AI assistant analyzes your fitness goals, available equipment, schedule, and current physical condition to recommend the most suitable workout videos from YouTube. It can also adjust plans based on your feedback and progress.
+                  Our AI assistant analyzes your fitness goals, available equipment, schedule, and
+                  current physical condition to recommend the most suitable workout videos from
+                  YouTube. It can also adjust plans based on your feedback and progress.
                 </p>
               </details>
             </div>
@@ -402,7 +415,9 @@ export function HomePage() {
                   <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-muted-foreground">
-                  Absolutely! TrainFlow is fully responsive and works great on all devices including smartphones, tablets, and desktop computers. We also offer mobile apps for iOS and Android for an enhanced experience.
+                  Absolutely! TrainFlow is fully responsive and works great on all devices including
+                  smartphones, tablets, and desktop computers. We also offer mobile apps for iOS and
+                  Android for an enhanced experience.
                 </p>
               </details>
             </div>

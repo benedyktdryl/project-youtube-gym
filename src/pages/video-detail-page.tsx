@@ -1,8 +1,8 @@
-import { Link, useLoaderData } from 'react-router';
-import { VideoPlayer } from '@/components/videos/video-player';
-import { ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { WorkoutVideo } from '@/lib/types';
+import { Button } from "@/components/ui/button";
+import { VideoPlayer } from "@/components/videos/video-player";
+import type { WorkoutVideo } from "@/lib/types";
+import { ChevronLeft } from "lucide-react";
+import { Link, useLoaderData } from "react-router";
 
 export function VideoDetailPage() {
   const { video } = useLoaderData<{ video: WorkoutVideo }>();
@@ -23,7 +23,7 @@ export function VideoDetailPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       <div className="flex items-center">
@@ -35,7 +35,7 @@ export function VideoDetailPage() {
         </Button>
         <h1 className="text-2xl font-bold truncate">Video Details</h1>
       </div>
-      
+
       <VideoPlayer video={video} />
     </div>
   );

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Filter, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { EQUIPMENT, MUSCLE_GROUPS } from '@/lib/constants';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { EQUIPMENT, MUSCLE_GROUPS } from "@/lib/constants";
+import { Filter, X } from "lucide-react";
+import { useState } from "react";
 
 interface VideoFiltersProps {
   onFiltersChange: (filters: {
@@ -17,7 +17,7 @@ interface VideoFiltersProps {
 }
 
 export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedMuscleGroups, setSelectedMuscleGroups] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [selectedIntensity, setSelectedIntensity] = useState<string[]>([]);
@@ -26,14 +26,20 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    applyFilters(e.target.value, selectedMuscleGroups, selectedEquipment, selectedIntensity, duration);
+    applyFilters(
+      e.target.value,
+      selectedMuscleGroups,
+      selectedEquipment,
+      selectedIntensity,
+      duration,
+    );
   };
 
   const toggleMuscleGroup = (id: string) => {
     const updated = selectedMuscleGroups.includes(id)
       ? selectedMuscleGroups.filter((item) => item !== id)
       : [...selectedMuscleGroups, id];
-    
+
     setSelectedMuscleGroups(updated);
     applyFilters(search, updated, selectedEquipment, selectedIntensity, duration);
   };
@@ -42,7 +48,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
     const updated = selectedEquipment.includes(id)
       ? selectedEquipment.filter((item) => item !== id)
       : [...selectedEquipment, id];
-    
+
     setSelectedEquipment(updated);
     applyFilters(search, selectedMuscleGroups, updated, selectedIntensity, duration);
   };
@@ -51,7 +57,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
     const updated = selectedIntensity.includes(id)
       ? selectedIntensity.filter((item) => item !== id)
       : [...selectedIntensity, id];
-    
+
     setSelectedIntensity(updated);
     applyFilters(search, selectedMuscleGroups, selectedEquipment, updated, duration);
   };
@@ -67,7 +73,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
     muscleGroups: string[],
     equipment: string[],
     intensity: string[],
-    duration: [number, number]
+    duration: [number, number],
   ) => {
     onFiltersChange({
       search,
@@ -79,19 +85,19 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
   };
 
   const clearAllFilters = () => {
-    setSearch('');
+    setSearch("");
     setSelectedMuscleGroups([]);
     setSelectedEquipment([]);
     setSelectedIntensity([]);
     setDuration([0, 60]);
-    applyFilters('', [], [], [], [0, 60]);
+    applyFilters("", [], [], [], [0, 60]);
   };
 
-  const hasActiveFilters = 
-    selectedMuscleGroups.length > 0 || 
-    selectedEquipment.length > 0 || 
-    selectedIntensity.length > 0 || 
-    duration[0] > 0 || 
+  const hasActiveFilters =
+    selectedMuscleGroups.length > 0 ||
+    selectedEquipment.length > 0 ||
+    selectedIntensity.length > 0 ||
+    duration[0] > 0 ||
     duration[1] < 60;
 
   return (
@@ -110,8 +116,14 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
               size="icon"
               className="absolute right-0 top-0 h-full"
               onClick={() => {
-                setSearch('');
-                applyFilters('', selectedMuscleGroups, selectedEquipment, selectedIntensity, duration);
+                setSearch("");
+                applyFilters(
+                  "",
+                  selectedMuscleGroups,
+                  selectedEquipment,
+                  selectedIntensity,
+                  duration,
+                );
               }}
             >
               <X className="h-4 w-4" />
@@ -119,7 +131,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
             </Button>
           )}
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant={filtersVisible ? "default" : "outline"}
@@ -130,12 +142,14 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
             Filters
             {hasActiveFilters && (
               <Badge className="ml-2 px-1 py-0 h-5 bg-primary/20 text-primary-foreground">
-                {selectedMuscleGroups.length + selectedEquipment.length + selectedIntensity.length +
+                {selectedMuscleGroups.length +
+                  selectedEquipment.length +
+                  selectedIntensity.length +
                   (duration[0] > 0 || duration[1] < 60 ? 1 : 0)}
               </Badge>
             )}
           </Button>
-          
+
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -148,7 +162,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
           )}
         </div>
       </div>
-      
+
       {filtersVisible && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-md bg-card">
           {/* Muscle Groups Filter */}
@@ -156,67 +170,61 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
             <h3 className="font-medium mb-2">Muscle Groups</h3>
             <div className="flex flex-wrap gap-2">
               {MUSCLE_GROUPS.map((group) => (
-                <Badge 
+                <Badge
                   key={group.id}
                   variant={selectedMuscleGroups.includes(group.id) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => toggleMuscleGroup(group.id)}
                 >
                   {group.name}
-                  {selectedMuscleGroups.includes(group.id) && (
-                    <X className="h-3 w-3 ml-1" />
-                  )}
+                  {selectedMuscleGroups.includes(group.id) && <X className="h-3 w-3 ml-1" />}
                 </Badge>
               ))}
             </div>
           </div>
-          
+
           {/* Equipment Filter */}
           <div>
             <h3 className="font-medium mb-2">Equipment</h3>
             <div className="flex flex-wrap gap-2">
               {EQUIPMENT.map((item) => (
-                <Badge 
+                <Badge
                   key={item.id}
                   variant={selectedEquipment.includes(item.id) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => toggleEquipment(item.id)}
                 >
                   {item.name}
-                  {selectedEquipment.includes(item.id) && (
-                    <X className="h-3 w-3 ml-1" />
-                  )}
+                  {selectedEquipment.includes(item.id) && <X className="h-3 w-3 ml-1" />}
                 </Badge>
               ))}
             </div>
           </div>
-          
+
           {/* Intensity Filter */}
           <div>
             <h3 className="font-medium mb-2">Intensity</h3>
             <div className="flex flex-wrap gap-2">
-              {['low', 'medium', 'high'].map((level) => (
-                <Badge 
+              {["low", "medium", "high"].map((level) => (
+                <Badge
                   key={level}
                   variant={selectedIntensity.includes(level) ? "default" : "outline"}
                   className={`cursor-pointer ${
-                    level === 'high' 
-                      ? 'hover:bg-red-100 hover:text-red-700' 
-                      : level === 'medium' 
-                        ? 'hover:bg-orange-100 hover:text-orange-700' 
-                        : 'hover:bg-green-100 hover:text-green-700'
+                    level === "high"
+                      ? "hover:bg-red-100 hover:text-red-700"
+                      : level === "medium"
+                        ? "hover:bg-orange-100 hover:text-orange-700"
+                        : "hover:bg-green-100 hover:text-green-700"
                   }`}
                   onClick={() => toggleIntensity(level)}
                 >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
-                  {selectedIntensity.includes(level) && (
-                    <X className="h-3 w-3 ml-1" />
-                  )}
+                  {selectedIntensity.includes(level) && <X className="h-3 w-3 ml-1" />}
                 </Badge>
               ))}
             </div>
           </div>
-          
+
           {/* Duration Filter */}
           <div>
             <h3 className="font-medium mb-2">Duration (minutes)</h3>

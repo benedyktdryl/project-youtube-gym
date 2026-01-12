@@ -4,6 +4,7 @@ export interface User {
   name: string;
   email: string;
   avatarUrl?: string;
+  role?: "user" | "admin";
 }
 
 // Authentication types
@@ -42,9 +43,17 @@ export interface WorkoutVideo {
   channelThumbnail: string;
   duration: number; // in seconds
   thumbnailUrl: string;
+  description?: string;
+  publishedAt?: string;
+  commentCount?: number;
   equipmentNeeded: string[];
   muscleGroups: string[];
-  intensity: 'low' | 'medium' | 'high';
+  intensity: "low" | "medium" | "high";
+  trainingType?: string;
+  trainingTags?: string[];
+  coachTone?: string;
+  qualityScore?: number;
+  safetyNotes?: string;
   exercises: VideoExercise[];
 }
 
@@ -53,7 +62,7 @@ export interface VideoExercise {
   startTime: number; // in seconds
   endTime: number; // in seconds
   muscleGroup: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: "beginner" | "intermediate" | "advanced";
 }
 
 export interface WorkoutDay {
@@ -63,7 +72,7 @@ export interface WorkoutDay {
   isCompleted: boolean;
 }
 
-export type SerializedWorkoutDay = Omit<WorkoutDay, 'date'> & { date: string };
+export type SerializedWorkoutDay = Omit<WorkoutDay, "date"> & { date: string };
 
 export interface UserPreferences {
   userId: string;
@@ -71,13 +80,13 @@ export interface UserPreferences {
   availableEquipment: string[];
   preferredDays: string[];
   preferredDuration: number; // in minutes
-  preferredIntensity: 'low' | 'medium' | 'high';
+  preferredIntensity: "low" | "medium" | "high";
 }
 
 // Chat types
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }

@@ -12,11 +12,11 @@
 - Target production-quality visuals: non-cookie-cutter layouts, thoughtful spacing, and consistent theming that works for both light/dark modes.
 
 ## Build, Test, and Development Commands
-- `npm install` — install dependencies.
-- `npm run dev` — start Vite dev server with hot reload.
-- `npm run build` — type-check (`tsc -b`) then generate production build.
-- `npm run preview` — serve the production build locally.
-- `npm run lint` — run ESLint across the repo; fix lint issues before opening a PR.
+- `bun install` — install dependencies.
+- `bun run dev` — start Vite dev server with hot reload.
+- `bun run build` — generate production build.
+- `bun run preview` — serve the production build locally.
+- `bun run lint` — run Biome checks across the repo; fix lint issues before opening a PR.
 
 ## Coding Style & Naming Conventions
 - Prefer functional React components written in TypeScript; keep props/return types explicit when non-trivial.
@@ -26,7 +26,7 @@
 
 ## Testing Guidelines
 - No automated tests are present yet. When adding tests, use Vitest/React Testing Library, name files `*.test.tsx`, and colocate near the code under test.
-- Cover new logic (auth flows, Supabase data interactions, routing guards) and keep fixtures small. Run `npm run lint` as a minimum gate before pushing.
+- Cover new logic (auth flows, Supabase data interactions, routing guards) and keep fixtures small. Run `bun run lint` as a minimum gate before pushing.
 
 ## Commit & Pull Request Guidelines
 - Write imperative, scoped commit messages (e.g., `Add video detail guard`, `Fix Supabase profile fetch`). Squash locally if commits are noisy.

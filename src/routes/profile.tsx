@@ -1,7 +1,7 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { prisma } from '@/lib/prisma.server';
-import { requireUserId } from '@/lib/session.server';
-import { ProfilePage } from '@/pages/profile-page';
+import { prisma } from "@/lib/prisma.server";
+import { requireUserId } from "@/lib/session.server";
+import { ProfilePage } from "@/pages/profile-page";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -17,7 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   if (!user) {
-    throw new Response('User not found', { status: 404 });
+    throw new Response("User not found", { status: 404 });
   }
 
   return { user };
@@ -26,11 +26,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  const name = String(formData.get('name') ?? '').trim();
-  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!name || !email) {
-    return Response.json({ error: 'Name and email are required' }, { status: 400 });
+    return Response.json({ error: "Name and email are required" }, { status: 400 });
   }
 
   const existing = await prisma.user.findFirst({
@@ -38,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (existing) {
-    return Response.json({ error: 'Email already in use' }, { status: 409 });
+    return Response.json({ error: "Email already in use" }, { status: 409 });
   }
 
   await prisma.user.update({

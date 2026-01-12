@@ -1,9 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { requireUserId } from '@/lib/session.server';
-import { prisma } from '@/lib/prisma.server';
-import { toWorkoutDays } from '@/lib/mappers.server';
-import type { SerializedWorkoutDay } from '@/lib/types';
-import { CalendarPage } from '@/pages/calendar-page';
+import { toWorkoutDays } from "@/lib/mappers.server";
+import { prisma } from "@/lib/prisma.server";
+import { requireUserId } from "@/lib/session.server";
+import type { SerializedWorkoutDay } from "@/lib/types";
+import { CalendarPage } from "@/pages/calendar-page";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -11,7 +11,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const workouts = await prisma.scheduledWorkout.findMany({
     where: { userId },
     include: { video: true },
-    orderBy: { scheduledDate: 'asc' },
+    orderBy: { scheduledDate: "asc" },
   });
 
   const workoutDays: SerializedWorkoutDay[] = toWorkoutDays(workouts).map((day) => ({
@@ -25,12 +25,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  const intent = formData.get('intent');
+  const intent = formData.get("intent");
 
-  if (intent === 'toggle-complete') {
-    const workoutId = String(formData.get('workoutId') ?? '');
+  if (intent === "toggle-complete") {
+    const workoutId = String(formData.get("workoutId") ?? "");
     if (!workoutId) {
-      return Response.json({ error: 'Workout id is required' }, { status: 400 });
+      return Response.json({ error: "Workout id is required" }, { status: 400 });
     }
 
     const existing = await prisma.scheduledWorkout.findFirst({
@@ -38,7 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (!existing) {
-      return Response.json({ error: 'Workout not found' }, { status: 404 });
+      return Response.json({ error: "Workout not found" }, { status: 404 });
     }
 
     const updated = await prisma.scheduledWorkout.update({
@@ -52,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return Response.json({ workoutId: updated.id, isCompleted: updated.isCompleted });
   }
 
-  return Response.json({ error: 'Unsupported action' }, { status: 400 });
+  return Response.json({ error: "Unsupported action" }, { status: 400 });
 }
 
 export default CalendarPage;

@@ -1,17 +1,17 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router';
-import { useSession } from '@/lib/use-session';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "@/lib/use-session";
+import { ArrowRight, MessageSquare } from "lucide-react";
+import { Link } from "react-router";
 
 export function WelcomeCard() {
   const { user } = useSession();
-  
+
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'morning';
-    if (hour < 18) return 'afternoon';
-    return 'evening';
+    if (hour < 12) return "morning";
+    if (hour < 18) return "afternoon";
+    return "evening";
   };
 
   return (
@@ -19,15 +19,14 @@ export function WelcomeCard() {
       <div className="absolute top-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl">
-          Good {getTimeOfDay()}, {user?.name?.split(' ')[0] || 'there'}!
+          Good {getTimeOfDay()}, {user?.name?.split(" ")[0] || "there"}!
         </CardTitle>
-        <CardDescription>
-          Ready to create your personalized workout plan?
-        </CardDescription>
+        <CardDescription>Ready to create your personalized workout plan?</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="mb-4 text-muted-foreground">
-          Let our AI assistant help you build a workout routine that fits your goals, equipment, and schedule.
+          Let our AI assistant help you build a workout routine that fits your goals, equipment, and
+          schedule.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button asChild>

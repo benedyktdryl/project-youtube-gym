@@ -1,6 +1,6 @@
-import type { ReactRouterConfig } from '@react-router/dev/config';
+import type { ReactRouterConfig } from "@react-router/dev/config";
 
 export default {
-  appDirectory: 'src',
+  appDirectory: "src",
   ssr: true,
 } satisfies ReactRouterConfig;

@@ -1,43 +1,44 @@
-import { createCookieSessionStorage, redirect } from 'react-router';
-import { prisma } from './prisma.server';
+import { createCookieSessionStorage, redirect } from "react-router";
+import { prisma } from "./prisma.server";
 
-const sessionSecret = process.env.SESSION_SECRET || 'dev-secret';
+const sessionSecret = process.env.SESSION_SECRET || "dev-secret";
 
 if (!sessionSecret) {
-  throw new Error('SESSION_SECRET is required for session handling.');
+  throw new Error("SESSION_SECRET is required for session handling.");
 }
 
 const sessionMaxAge = 60 * 60 * 24 * 7; // 7 days
 const storage = createCookieSessionStorage({
   cookie: {
-    name: '__trainflow_session',
+    name: "__trainflow_session",
     httpOnly: true,
     maxAge: sessionMaxAge,
-    path: '/',
-    sameSite: 'lax',
+    path: "/",
+    sameSite: "lax",
     secrets: [sessionSecret],
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === "production",
   },
 });
 
-const USER_SESSION_KEY = 'userId';
+const USER_SESSION_KEY = "userId";
 
 export type SessionUser = {
   id: string;
   email: string;
   name: string;
   avatarUrl: string | null;
+  role: "user" | "admin";
 };
 
 export async function getSession(request: Request) {
-  const cookie = request.headers.get('cookie');
+  const cookie = request.headers.get("cookie");
   return storage.getSession(cookie);
 }
 
 export async function getUserId(request: Request) {
   const session = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
-  return typeof userId === 'string' ? userId : null;
+  return typeof userId === "string" ? userId : null;
 }
 
 export async function getUser(request: Request): Promise<SessionUser | null> {
@@ -46,21 +47,21 @@ export async function getUser(request: Request): Promise<SessionUser | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, avatarUrl: true },
+    select: { id: true, email: true, name: true, avatarUrl: true, role: true },
   });
 
   if (!user) {
     const session = await getSession(request);
     session.unset(USER_SESSION_KEY);
-    throw redirect('/login', {
-      headers: { 'Set-Cookie': await storage.commitSession(session) },
+    throw redirect("/login", {
+      headers: { "Set-Cookie": await storage.commitSession(session) },
     });
   }
 
   return user;
 }
 
-export async function requireUserId(request: Request, redirectTo = '/login') {
+export async function requireUserId(request: Request, redirectTo = "/login") {
   const userId = await getUserId(request);
   if (!userId) {
     throw redirect(redirectTo);
@@ -71,7 +72,15 @@ export async function requireUserId(request: Request, redirectTo = '/login') {
 export async function requireUser(request: Request) {
   const user = await getUser(request);
   if (!user) {
-    throw redirect('/login');
+    throw redirect("/login");
+  }
+  return user;
+}
+
+export async function requireAdminUser(request: Request) {
+  const user = await requireUser(request);
+  if (user.role !== "admin") {
+    throw redirect("/dashboard");
   }
   return user;
 }
@@ -81,16 +90,20 @@ export async function createUserSession(userId: string, redirectTo: string) {
   session.set(USER_SESSION_KEY, userId);
   return redirect(redirectTo, {
     headers: {
-      'Set-Cookie': await storage.commitSession(session),
+      "Set-Cookie": await storage.commitSession(session),
     },
   });
 }
 
+export function setUserSession(session: Awaited<ReturnType<typeof getSession>>, userId: string) {
+  session.set(USER_SESSION_KEY, userId);
+}
+
 export async function destroyUserSession(request: Request) {
   const session = await getSession(request);
-  return redirect('/login', {
+  return redirect("/login", {
     headers: {
-      'Set-Cookie': await storage.destroySession(session),
+      "Set-Cookie": await storage.destroySession(session),
     },
   });
 }

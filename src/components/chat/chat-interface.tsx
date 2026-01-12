@@ -1,19 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useFetcher, useLoaderData } from 'react-router';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Bot, Dumbbell, Loader2, Send } from 'lucide-react';
-import { ChatMessage } from '@/lib/types';
-import { useSession } from '@/lib/use-session';
-import { CHAT_SUGGESTIONS } from '@/lib/constants';
-import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { CHAT_SUGGESTIONS } from "@/lib/constants";
+import type { ChatMessage } from "@/lib/types";
+import { useSession } from "@/lib/use-session";
+import { Bot, Dumbbell, Loader2, Send } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFetcher, useLoaderData } from "react-router";
+import { toast } from "sonner";
 
 type ChatLoaderData = {
   messages: Array<{
     id: string;
-    role: 'user' | 'assistant';
+    role: "user" | "assistant";
     content: string;
     createdAt: string;
   }>;
@@ -22,16 +22,16 @@ type ChatLoaderData = {
 export function ChatInterface() {
   const { user } = useSession();
   const { messages: initialMessages } = useLoaderData<ChatLoaderData>();
-  const fetcher = useFetcher<{ messages?: ChatLoaderData['messages']; error?: string }>();
+  const fetcher = useFetcher<{ messages?: ChatLoaderData["messages"]; error?: string }>();
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
     initialMessages.map((message) => ({
       id: message.id,
       role: message.role,
       content: message.content,
       timestamp: new Date(message.createdAt),
-    }))
+    })),
   );
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,45 +41,49 @@ export function ChatInterface() {
         role: message.role,
         content: message.content,
         timestamp: new Date(message.createdAt),
-      }))
+      })),
     );
   }, [initialMessages]);
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data?.messages) {
+    const fetchedMessages = fetcher.data?.messages;
+    if (fetcher.state === "idle" && fetchedMessages) {
       setMessages((prev) => [
         ...prev,
-        ...fetcher.data.messages.map((message) => ({
+        ...fetchedMessages.map((message) => ({
           id: message.id,
           role: message.role,
           content: message.content,
           timestamp: new Date(message.createdAt),
         })),
       ]);
-      setInput('');
+      setInput("");
     }
 
-    if (fetcher.state === 'idle' && fetcher.data?.error) {
+    if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(fetcher.data.error);
     }
   }, [fetcher.state, fetcher.data]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const messageCount = messages.length;
+    if (messageCount > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length]);
 
-  const isSubmitting = fetcher.state !== 'idle';
+  const isSubmitting = fetcher.state !== "idle";
 
   const handleSendMessage = () => {
     if (!input.trim()) return;
 
     const formData = new FormData();
-    formData.append('message', input.trim());
-    fetcher.submit(formData, { method: 'post', action: '/chat' });
+    formData.append("message", input.trim());
+    fetcher.submit(formData, { method: "post", action: "/chat" });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -90,9 +94,8 @@ export function ChatInterface() {
   };
 
   const displayMessages = useMemo(
-    () =>
-      messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
-    [messages]
+    () => messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
+    [messages],
   );
 
   return (
@@ -102,9 +105,9 @@ export function ChatInterface() {
           {displayMessages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-4`}
             >
-              {message.role === 'assistant' && (
+              {message.role === "assistant" && (
                 <Avatar className="h-8 w-8 mr-2">
                   <AvatarImage src="/bot-avatar.png" alt="AI Assistant" />
                   <AvatarFallback className="bg-primary/10 text-primary">
@@ -114,20 +117,18 @@ export function ChatInterface() {
               )}
               <div
                 className={`px-4 py-2 rounded-lg max-w-[80%] ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                  message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
                 <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
-              {message.role === 'user' && (
+              {message.role === "user" && (
                 <Avatar className="h-8 w-8 ml-2">
-                  <AvatarImage src={user?.avatarUrl || undefined} alt={user?.name || 'User'} />
-                  <AvatarFallback>{(user?.name || 'U')[0]}</AvatarFallback>
+                  <AvatarImage src={user?.avatarUrl || undefined} alt={user?.name || "User"} />
+                  <AvatarFallback>{(user?.name || "U")[0]}</AvatarFallback>
                 </Avatar>
               )}
             </div>
@@ -156,7 +157,8 @@ export function ChatInterface() {
             </div>
             <h3 className="text-xl font-semibold mb-2">TrainFlow Assistant</h3>
             <p className="text-center text-muted-foreground mb-6 max-w-md">
-              I'll help you create a personalized workout plan based on your goals, available equipment, and schedule.
+              I'll help you create a personalized workout plan based on your goals, available
+              equipment, and schedule.
             </p>
             <div className="flex flex-wrap gap-2 justify-center max-w-md">
               {CHAT_SUGGESTIONS.map((suggestion) => (

@@ -1,8 +1,8 @@
-import { useRouteLoaderData } from 'react-router';
-import type { RootLoaderData } from '@/root';
+import type { RootLoaderData } from "@/root";
+import { useRouteLoaderData } from "react-router";
 
 export function useSession() {
-  const data = useRouteLoaderData('root') as RootLoaderData | undefined;
+  const data = useRouteLoaderData("root") as RootLoaderData | undefined;
   return {
     user: data?.user ?? null,
     isAuthenticated: Boolean(data?.user),

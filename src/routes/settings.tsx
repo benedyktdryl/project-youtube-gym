@@ -1,8 +1,8 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { prisma } from '@/lib/prisma.server';
-import { requireUserId } from '@/lib/session.server';
-import { SettingsPage } from '@/pages/settings-page';
-import type { UserPreferences } from '@/lib/types';
+import { prisma } from "@/lib/prisma.server";
+import { requireUserId } from "@/lib/session.server";
+import type { UserPreferences } from "@/lib/types";
+import { SettingsPage } from "@/pages/settings-page";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -15,9 +15,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const created = await prisma.userPreference.create({
       data: {
         userId,
-        goal: 'general-fitness',
+        goal: "general-fitness",
         preferredDuration: 30,
-        preferredIntensity: 'medium',
+        preferredIntensity: "medium",
         availableEquipment: [],
         preferredDays: [],
       },
@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       userId,
       goal: created.goal,
       preferredDuration: created.preferredDuration,
-      preferredIntensity: created.preferredIntensity as UserPreferences['preferredIntensity'],
+      preferredIntensity: created.preferredIntensity as UserPreferences["preferredIntensity"],
       availableEquipment: created.availableEquipment,
       preferredDays: created.preferredDays,
     };
@@ -37,7 +37,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userId,
     goal: preferences.goal,
     preferredDuration: preferences.preferredDuration,
-    preferredIntensity: preferences.preferredIntensity as UserPreferences['preferredIntensity'],
+    preferredIntensity: preferences.preferredIntensity as UserPreferences["preferredIntensity"],
     availableEquipment: preferences.availableEquipment,
     preferredDays: preferences.preferredDays,
   };
@@ -49,11 +49,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
 
-  const goal = String(formData.get('goal') ?? 'general-fitness');
-  const preferredDuration = Number(formData.get('preferredDuration') ?? 30);
-  const preferredIntensity = String(formData.get('preferredIntensity') ?? 'medium');
-  const availableEquipment = formData.getAll('availableEquipment').map(String);
-  const preferredDays = formData.getAll('preferredDays').map(String);
+  const goal = String(formData.get("goal") ?? "general-fitness");
+  const preferredDuration = Number(formData.get("preferredDuration") ?? 30);
+  const preferredIntensity = String(formData.get("preferredIntensity") ?? "medium");
+  const availableEquipment = formData.getAll("availableEquipment").map(String);
+  const preferredDays = formData.getAll("preferredDays").map(String);
 
   await prisma.userPreference.upsert({
     where: { userId },

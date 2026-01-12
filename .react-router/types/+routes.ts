@@ -20,6 +20,16 @@ type Pages = {
   "/register": {
     params: {};
   };
+  "/auth/:provider": {
+    params: {
+      "provider": string;
+    };
+  };
+  "/auth/callback/:provider": {
+    params: {
+      "provider": string;
+    };
+  };
   "/dashboard": {
     params: {};
   };
@@ -37,6 +47,9 @@ type Pages = {
       "id": string;
     };
   };
+  "/ingestion": {
+    params: {};
+  };
   "/profile": {
     params: {};
   };
@@ -51,7 +64,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login" | "/register" | "/dashboard" | "/chat" | "/calendar" | "/videos" | "/videos/:id" | "/profile" | "/settings" | "/logout";
+    page: "/" | "/login" | "/register" | "/auth/:provider" | "/auth/callback/:provider" | "/dashboard" | "/chat" | "/calendar" | "/videos" | "/videos/:id" | "/ingestion" | "/profile" | "/settings" | "/logout";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -64,6 +77,14 @@ type RouteFiles = {
   "routes/register.tsx": {
     id: "routes/register";
     page: "/register";
+  };
+  "routes/auth.$provider.tsx": {
+    id: "routes/auth.$provider";
+    page: "/auth/:provider";
+  };
+  "routes/auth.callback.$provider.tsx": {
+    id: "routes/auth.callback.$provider";
+    page: "/auth/callback/:provider";
   };
   "routes/dashboard.tsx": {
     id: "routes/dashboard";
@@ -85,6 +106,10 @@ type RouteFiles = {
     id: "routes/videos.$id";
     page: "/videos/:id";
   };
+  "routes/ingestion.tsx": {
+    id: "routes/ingestion";
+    page: "/ingestion";
+  };
   "routes/profile.tsx": {
     id: "routes/profile";
     page: "/profile";
@@ -104,11 +129,14 @@ type RouteModules = {
   "routes/_index": typeof import("./src/routes/_index.tsx");
   "routes/login": typeof import("./src/routes/login.tsx");
   "routes/register": typeof import("./src/routes/register.tsx");
+  "routes/auth.$provider": typeof import("./src/routes/auth.$provider.tsx");
+  "routes/auth.callback.$provider": typeof import("./src/routes/auth.callback.$provider.tsx");
   "routes/dashboard": typeof import("./src/routes/dashboard.tsx");
   "routes/chat": typeof import("./src/routes/chat.tsx");
   "routes/calendar": typeof import("./src/routes/calendar.tsx");
   "routes/videos": typeof import("./src/routes/videos.tsx");
   "routes/videos.$id": typeof import("./src/routes/videos.$id.tsx");
+  "routes/ingestion": typeof import("./src/routes/ingestion.tsx");
   "routes/profile": typeof import("./src/routes/profile.tsx");
   "routes/settings": typeof import("./src/routes/settings.tsx");
   "routes/logout": typeof import("./src/routes/logout.tsx");

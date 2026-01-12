@@ -1,20 +1,20 @@
-import './index.css';
-import './App.css';
+import "./index.css";
+import "./App.css";
 
-import type { LoaderFunctionArgs } from 'react-router';
+import { Layout } from "@/components/layout/layout";
+import type { SessionUser } from "@/lib/session.server";
+import { getUser } from "@/lib/session.server";
+import { ThemeProvider } from "@/lib/theme-provider";
+import type { LoaderFunctionArgs } from "react-router";
 import {
-  isRouteErrorResponse,
   Links,
   Meta,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
   useRouteError,
-} from 'react-router';
-import { Layout } from '@/components/layout/layout';
-import { ThemeProvider } from '@/lib/theme-provider';
-import type { SessionUser } from '@/lib/session.server';
-import { getUser } from '@/lib/session.server';
+} from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
@@ -46,8 +46,8 @@ export default function Root() {
 export function ErrorBoundary() {
   const error = useRouteError();
 
-  let title = 'Something went wrong';
-  let description = 'An unexpected error occurred.';
+  let title = "Something went wrong";
+  let description = "An unexpected error occurred.";
 
   if (isRouteErrorResponse(error)) {
     title = error.statusText || title;

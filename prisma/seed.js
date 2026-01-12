@@ -1,20 +1,40 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { Pool } from "pg";
 
-const prisma = new PrismaClient();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 async function main() {
-  const passwordHash = await bcrypt.hash('Demo123!', 10);
+  const passwordHash = await bcrypt.hash("Demo123!", 10);
+  const userPasswordHash = await bcrypt.hash("User123!", 10);
 
   const user = await prisma.user.upsert({
-    where: { email: 'demo@trainflow.com' },
+    where: { email: "demo@trainflow.com" },
     update: {},
     create: {
-      email: 'demo@trainflow.com',
+      email: "demo@trainflow.com",
       passwordHash,
-      name: 'Demo User',
+      name: "Demo User",
+      role: "admin",
       avatarUrl:
-        'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400',
+        "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=400",
+    },
+  });
+
+  const regularUser = await prisma.user.upsert({
+    where: { email: "user@trainflow.com" },
+    update: {},
+    create: {
+      email: "user@trainflow.com",
+      passwordHash: userPasswordHash,
+      name: "Regular User",
+      role: "user",
+      avatarUrl:
+        "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400",
     },
   });
 
@@ -23,82 +43,95 @@ async function main() {
     update: {},
     create: {
       userId: user.id,
-      goal: 'muscle-gain',
+      goal: "muscle-gain",
       preferredDuration: 30,
-      preferredIntensity: 'medium',
-      availableEquipment: ['mat', 'dumbbells', 'resistance-bands'],
-      preferredDays: ['monday', 'wednesday', 'friday', 'saturday'],
+      preferredIntensity: "medium",
+      availableEquipment: ["mat", "dumbbells", "resistance-bands"],
+      preferredDays: ["monday", "wednesday", "friday", "saturday"],
+    },
+  });
+
+  await prisma.userPreference.upsert({
+    where: { userId: regularUser.id },
+    update: {},
+    create: {
+      userId: regularUser.id,
+      goal: "general-fitness",
+      preferredDuration: 20,
+      preferredIntensity: "low",
+      availableEquipment: [],
+      preferredDays: [],
     },
   });
 
   const videos = [
     {
-      youtubeId: 'ml6cT4AZdqI',
-      title: '30 Min Full Body HIIT Workout',
-      channelName: 'MadFit',
+      youtubeId: "ml6cT4AZdqI",
+      title: "30 Min Full Body HIIT Workout",
+      channelName: "MadFit",
       channelThumbnail:
-        'https://yt3.googleusercontent.com/ytc/APkrFKZUSQCHhrlwCAXuEkzxOXD50HLoNs6Pm9TKMTGiAw=s176-c-k-c0x00ffffff-no-rj',
-      thumbnailUrl: 'https://i.ytimg.com/vi/ml6cT4AZdqI/maxresdefault.jpg',
+        "https://yt3.googleusercontent.com/ytc/APkrFKZUSQCHhrlwCAXuEkzxOXD50HLoNs6Pm9TKMTGiAw=s176-c-k-c0x00ffffff-no-rj",
+      thumbnailUrl: "https://i.ytimg.com/vi/ml6cT4AZdqI/maxresdefault.jpg",
       duration: 1800,
-      intensity: 'high',
-      muscleGroups: ['full-body', 'cardio'],
-      equipmentNeeded: ['mat'],
+      intensity: "high",
+      muscleGroups: ["full-body", "cardio"],
+      equipmentNeeded: ["mat"],
       exercises: [
         {
-          name: 'Jumping Jacks',
+          name: "Jumping Jacks",
           startTime: 120,
           endTime: 150,
-          muscleGroup: 'cardio',
-          difficulty: 'beginner',
+          muscleGroup: "cardio",
+          difficulty: "beginner",
         },
         {
-          name: 'Squats',
+          name: "Squats",
           startTime: 180,
           endTime: 210,
-          muscleGroup: 'quads',
-          difficulty: 'beginner',
+          muscleGroup: "quads",
+          difficulty: "beginner",
         },
       ],
     },
     {
-      youtubeId: 'UyTR2EjTAXU',
-      title: '20 Min Arm Workout with Dumbbells',
-      channelName: 'Pamela Reif',
+      youtubeId: "UyTR2EjTAXU",
+      title: "20 Min Arm Workout with Dumbbells",
+      channelName: "Pamela Reif",
       channelThumbnail:
-        'https://yt3.googleusercontent.com/ytc/APkrFKaXBBAlwy4iuLJVzgYHDtlTnUmV4XwO5u_P7qKZKA=s176-c-k-c0x00ffffff-no-rj',
-      thumbnailUrl: 'https://i.ytimg.com/vi/UyTR2EjTAXU/maxresdefault.jpg',
+        "https://yt3.googleusercontent.com/ytc/APkrFKaXBBAlwy4iuLJVzgYHDtlTnUmV4XwO5u_P7qKZKA=s176-c-k-c0x00ffffff-no-rj",
+      thumbnailUrl: "https://i.ytimg.com/vi/UyTR2EjTAXU/maxresdefault.jpg",
       duration: 1200,
-      intensity: 'medium',
-      muscleGroups: ['biceps', 'triceps', 'shoulders'],
-      equipmentNeeded: ['dumbbells'],
+      intensity: "medium",
+      muscleGroups: ["biceps", "triceps", "shoulders"],
+      equipmentNeeded: ["dumbbells"],
       exercises: [
         {
-          name: 'Bicep Curls',
+          name: "Bicep Curls",
           startTime: 90,
           endTime: 120,
-          muscleGroup: 'biceps',
-          difficulty: 'beginner',
+          muscleGroup: "biceps",
+          difficulty: "beginner",
         },
       ],
     },
     {
-      youtubeId: 'AnYl6Nk9GOA',
-      title: '15 Min Abs Workout',
-      channelName: 'Chloe Ting',
+      youtubeId: "AnYl6Nk9GOA",
+      title: "15 Min Abs Workout",
+      channelName: "Chloe Ting",
       channelThumbnail:
-        'https://yt3.googleusercontent.com/ytc/APkrFKb3JO87LkWT5LPLJXzs_2mOcfINB7B42yNY5arSIQ=s176-c-k-c0x00ffffff-no-rj',
-      thumbnailUrl: 'https://i.ytimg.com/vi/AnYl6Nk9GOA/maxresdefault.jpg',
+        "https://yt3.googleusercontent.com/ytc/APkrFKb3JO87LkWT5LPLJXzs_2mOcfINB7B42yNY5arSIQ=s176-c-k-c0x00ffffff-no-rj",
+      thumbnailUrl: "https://i.ytimg.com/vi/AnYl6Nk9GOA/maxresdefault.jpg",
       duration: 900,
-      intensity: 'medium',
-      muscleGroups: ['abs'],
-      equipmentNeeded: ['mat'],
+      intensity: "medium",
+      muscleGroups: ["abs"],
+      equipmentNeeded: ["mat"],
       exercises: [
         {
-          name: 'Plank',
+          name: "Plank",
           startTime: 150,
           endTime: 180,
-          muscleGroup: 'abs',
-          difficulty: 'intermediate',
+          muscleGroup: "abs",
+          difficulty: "intermediate",
         },
       ],
     },
@@ -110,8 +143,8 @@ async function main() {
         where: { youtubeId: video.youtubeId },
         update: {},
         create: video,
-      })
-    )
+      }),
+    ),
   );
 
   const getDate = (offsetDays) => {
@@ -122,9 +155,9 @@ async function main() {
   };
 
   const schedule = [
-    { youtubeId: 'ml6cT4AZdqI', offset: -2, completed: true },
-    { youtubeId: 'AnYl6Nk9GOA', offset: 0, completed: false },
-    { youtubeId: 'UyTR2EjTAXU', offset: 2, completed: false },
+    { youtubeId: "ml6cT4AZdqI", offset: -2, completed: true },
+    { youtubeId: "AnYl6Nk9GOA", offset: 0, completed: false },
+    { youtubeId: "UyTR2EjTAXU", offset: 2, completed: false },
   ];
 
   for (const item of schedule) {
@@ -157,14 +190,14 @@ async function main() {
     data: [
       {
         userId: user.id,
-        role: 'user',
-        content: 'Help me plan workouts around a busy week.',
+        role: "user",
+        content: "Help me plan workouts around a busy week.",
       },
       {
         userId: user.id,
-        role: 'assistant',
+        role: "assistant",
         content:
-          'I can schedule three 30-minute sessions focusing on full-body, abs, and arms with your available equipment.',
+          "I can schedule three 30-minute sessions focusing on full-body, abs, and arms with your available equipment.",
       },
     ],
   });
@@ -177,4 +210,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

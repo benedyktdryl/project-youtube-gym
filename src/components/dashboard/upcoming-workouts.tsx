@@ -1,6 +1,5 @@
-import { format } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +7,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Calendar, Clock, Video, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router';
-import type { SerializedWorkoutDay } from '@/lib/types';
+} from "@/components/ui/card";
+import type { SerializedWorkoutDay } from "@/lib/types";
+import { format } from "date-fns";
+import { ArrowRight, Calendar, Clock, Video } from "lucide-react";
+import { Link } from "react-router";
 
 type UpcomingWorkoutsProps = {
   workouts: SerializedWorkoutDay[];
@@ -56,18 +56,16 @@ export function UpcomingWorkouts({ workouts }: UpcomingWorkoutsProps) {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span className="font-medium">
-                    {format(day.date, 'EEEE, MMM d')}
-                  </span>
+                  <span className="font-medium">{format(day.date, "EEEE, MMM d")}</span>
                 </div>
                 <Badge variant="outline" className="ml-2">
-                  {day.videos.length} {day.videos.length === 1 ? 'video' : 'videos'}
+                  {day.videos.length} {day.videos.length === 1 ? "video" : "videos"}
                 </Badge>
               </div>
               <div className="space-y-3">
                 {day.videos.map((video) => (
-                  <div 
-                    key={video.id} 
+                  <div
+                    key={video.id}
                     className="flex items-center gap-3 ml-6 text-sm text-muted-foreground"
                   >
                     <Video className="h-3 w-3" />

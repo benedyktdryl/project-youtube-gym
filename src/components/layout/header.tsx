@@ -1,23 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Link, useFetcher, useLocation } from 'react-router';
-import {
-  Menu,
-  LogOut,
-  User,
-  Settings,
-  Dumbbell,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useSession } from '@/lib/use-session';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useSession } from "@/lib/use-session";
+import { Dumbbell, LogOut, Menu, Settings, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useFetcher, useLocation } from "react-router";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -34,19 +28,17 @@ export function Header({ onMenuClick }: HeaderProps) {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header 
+    <header
       className={`sticky top-0 z-40 w-full transition-all duration-200 ${
-        isScrolled 
-          ? 'bg-background/80 backdrop-blur-md border-b shadow-sm' 
-          : 'bg-transparent'
+        isScrolled ? "bg-background/80 backdrop-blur-md border-b shadow-sm" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="flex h-16 w-full items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           {isAuthenticated && (
             <Button variant="ghost" size="icon" onClick={onMenuClick} className="md:hidden">
@@ -59,20 +51,32 @@ export function Header({ onMenuClick }: HeaderProps) {
             <span className="font-bold text-xl hidden sm:inline-block">TrainFlow</span>
           </Link>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          
+
           {isAuthenticated ? (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.name} />
-                    <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
+              <div className="flex items-center gap-3">
+                <div className="text-right leading-tight">
+                  <p className="text-sm font-medium">
+                    {(user?.name ?? "User").split(" ").slice(0, 2).join(" ")}
+                  </p>
+                  {user?.role && user.role !== "user" ? (
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {user.role}
+                    </p>
+                  ) : null}
+                </div>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.name} />
+                      <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+              </div>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
@@ -99,14 +103,14 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => logoutFetcher.submit(null, { method: 'post', action: '/logout' })}
+                  onClick={() => logoutFetcher.submit(null, { method: "post", action: "/logout" })}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : location.pathname !== '/login' && location.pathname !== '/register' ? (
+          ) : location.pathname !== "/login" && location.pathname !== "/register" ? (
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild>
                 <Link to="/login">Sign in</Link>

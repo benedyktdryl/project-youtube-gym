@@ -1,15 +1,15 @@
-import type { LoaderFunctionArgs } from 'react-router';
-import { redirect } from 'react-router';
-import { prisma } from '@/lib/prisma.server';
-import { mapWorkoutVideo } from '@/lib/mappers.server';
-import { requireUser } from '@/lib/session.server';
-import { VideoDetailPage } from '@/pages/video-detail-page';
+import { mapWorkoutVideo } from "@/lib/mappers.server";
+import { prisma } from "@/lib/prisma.server";
+import { requireUser } from "@/lib/session.server";
+import { VideoDetailPage } from "@/pages/video-detail-page";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireUser(request);
 
   if (!params.id) {
-    throw redirect('/videos');
+    throw redirect("/videos");
   }
 
   const video = await prisma.workoutVideo.findUnique({
@@ -17,7 +17,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   if (!video) {
-    throw new Response('Not Found', { status: 404 });
+    throw new Response("Not Found", { status: 404 });
   }
 
   return { video: mapWorkoutVideo(video) };

@@ -1,10 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useFetcher } from 'react-router';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,9 +7,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from 'sonner';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import { toast } from "sonner";
 
 type UserProfileProps = {
   user: {
@@ -29,7 +29,7 @@ export function UserProfile({ user }: UserProfileProps) {
   const fetcher = useFetcher();
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
-  const [bio, setBio] = useState('');
+  const [bio, setBio] = useState("");
 
   useEffect(() => {
     setName(user.name);
@@ -37,9 +37,9 @@ export function UserProfile({ user }: UserProfileProps) {
   }, [user]);
 
   useEffect(() => {
-    if (fetcher.state === 'idle') {
+    if (fetcher.state === "idle") {
       if (fetcher.data?.ok) {
-        toast.success('Profile updated successfully');
+        toast.success("Profile updated successfully");
       }
       if (fetcher.data?.error) {
         toast.error(fetcher.data.error);
@@ -50,10 +50,10 @@ export function UserProfile({ user }: UserProfileProps) {
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    fetcher.submit(formData, { method: 'post', action: '/profile' });
+    fetcher.submit(formData, { method: "post", action: "/profile" });
   };
 
-  const isSubmitting = fetcher.state !== 'idle';
+  const isSubmitting = fetcher.state !== "idle";
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -116,11 +116,15 @@ export function UserProfile({ user }: UserProfileProps) {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => toast.info('Changes discarded')}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => toast.info("Changes discarded")}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
             </CardFooter>
           </fetcher.Form>

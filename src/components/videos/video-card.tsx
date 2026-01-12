@@ -1,18 +1,12 @@
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { WorkoutVideo } from '@/lib/types';
-import { 
-  Clock, 
-  Play, 
-  Plus, 
-  Dumbbell, 
-  Bookmark 
-} from 'lucide-react';
-import { Link } from 'react-router';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import type { WorkoutVideo } from "@/lib/types";
+import { Bookmark, Clock, Dumbbell, Play, Plus } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router";
+import { toast } from "sonner";
 
 interface VideoCardProps {
   video: WorkoutVideo;
@@ -38,10 +32,10 @@ export function VideoCard({ video }: VideoCardProps) {
     <Card className="overflow-hidden group h-full flex flex-col hover:shadow-md transition-all">
       <Link to={`/videos/${video.id}`} className="block h-full">
         <div className="relative aspect-video overflow-hidden">
-          <img 
-            src={video.thumbnailUrl} 
+          <img
+            src={video.thumbnailUrl}
             alt={video.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+            className="w-full h-full object-cover transition-transform group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
             <Button size="icon" variant="secondary" className="rounded-full">
@@ -50,7 +44,7 @@ export function VideoCard({ video }: VideoCardProps) {
           </div>
           <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
             <Clock className="h-3 w-3 mr-1" />
-            {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+            {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, "0")}
           </div>
         </div>
         <CardContent className="p-4 flex-grow">
@@ -70,14 +64,14 @@ export function VideoCard({ video }: VideoCardProps) {
                 {group}
               </Badge>
             ))}
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-xs ${
-                video.intensity === 'high' 
-                  ? 'border-red-200 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300' 
-                  : video.intensity === 'medium' 
-                    ? 'border-orange-200 bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300' 
-                    : 'border-green-200 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300'
+                video.intensity === "high"
+                  ? "border-red-200 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+                  : video.intensity === "medium"
+                    ? "border-orange-200 bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
+                    : "border-green-200 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
               }`}
             >
               {video.intensity} intensity
@@ -87,25 +81,21 @@ export function VideoCard({ video }: VideoCardProps) {
         <CardFooter className="px-4 py-3 border-t flex justify-between">
           <div className="flex items-center text-xs text-muted-foreground">
             <Dumbbell className="h-3 w-3 mr-1" />
-            {video.equipmentNeeded.length > 0 
-              ? video.equipmentNeeded.join(', ') 
-              : 'No equipment'}
+            {video.equipmentNeeded.length > 0 ? video.equipmentNeeded.join(", ") : "No equipment"}
           </div>
           <div className="flex gap-1">
-            <Button 
-              size="icon" 
-              variant="ghost" 
+            <Button
+              size="icon"
+              variant="ghost"
               className="h-7 w-7 rounded-full"
               onClick={handleSave}
             >
-              <Bookmark 
-                className={`h-4 w-4 ${isSaved ? 'fill-primary' : ''}`} 
-              />
+              <Bookmark className={`h-4 w-4 ${isSaved ? "fill-primary" : ""}`} />
               <span className="sr-only">Save</span>
             </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
+            <Button
+              size="icon"
+              variant="ghost"
               className="h-7 w-7 rounded-full"
               onClick={handleAddToCalendar}
             >

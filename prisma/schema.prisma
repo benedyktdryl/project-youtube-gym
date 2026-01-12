@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum ChatRole {
@@ -12,19 +11,40 @@ enum ChatRole {
   assistant
 }
 
+enum UserRole {
+  user
+  admin
+}
+
 model User {
   id           String            @id @default(uuid()) @db.Uuid
   email        String            @unique
-  passwordHash String            @map("password_hash")
+  passwordHash String?           @map("password_hash")
   name         String
   avatarUrl    String?           @map("avatar_url")
+  role         UserRole          @default(user)
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
   preferences  UserPreference?
   workouts     ScheduledWorkout[]
   messages     ChatMessage[]
+  identities   UserIdentity[]
 
   @@map("users")
+}
+
+model UserIdentity {
+  id             String   @id @default(uuid()) @db.Uuid
+  provider       String
+  providerUserId String   @map("provider_user_id")
+  email          String?
+  userId         String   @db.Uuid @map("user_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId], map: "user_identities_provider_user_unique")
+  @@index([userId], map: "idx_user_identities_user")
+  @@map("user_identities")
 }
 
 model UserPreference {
@@ -49,15 +69,37 @@ model WorkoutVideo {
   channelName      String           @map("channel_name")
   channelThumbnail String           @map("channel_thumbnail")
   thumbnailUrl     String           @map("thumbnail_url")
+  description      String?          @db.Text
+  publishedAt      DateTime?         @map("published_at")
+  commentCount     Int?              @map("comment_count")
   duration         Int
   intensity        String
   muscleGroups     String[]         @default([]) @map("muscle_groups")
   equipmentNeeded  String[]         @default([]) @map("equipment_needed")
+  trainingType     String?          @map("training_type")
+  trainingTags     String[]         @default([]) @map("training_tags")
+  coachTone        String?          @map("coach_tone")
+  qualityScore     Int?             @map("quality_score")
+  safetyNotes      String?          @db.Text @map("safety_notes")
+  analyzedAt       DateTime?         @map("analyzed_at")
   exercises        Json             @default("[]")
   createdAt        DateTime         @default(now()) @map("created_at")
   scheduled        ScheduledWorkout[]
 
   @@map("workout_videos")
+}
+
+model IngestionEvent {
+  id             String   @id @default(uuid()) @db.Uuid
+  youtubeId      String   @map("youtube_id")
+  analyzerUsed   String   @map("analyzer_used")
+  qualityScore   Int?     @map("quality_score")
+  missingFields  String[] @default([]) @map("missing_fields")
+  errorMessage   String?  @db.Text @map("error_message")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([youtubeId], map: "idx_ingestion_events_youtube")
+  @@map("ingestion_events")
 }
 
 model ScheduledWorkout {

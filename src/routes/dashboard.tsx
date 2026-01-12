@@ -1,9 +1,9 @@
-import type { LoaderFunctionArgs } from 'react-router';
-import { prisma } from '@/lib/prisma.server';
-import { toWorkoutDays } from '@/lib/mappers.server';
-import type { SerializedWorkoutDay } from '@/lib/types';
-import { requireUserId } from '@/lib/session.server';
-import { DashboardPage } from '@/pages/dashboard-page';
+import { toWorkoutDays } from "@/lib/mappers.server";
+import { prisma } from "@/lib/prisma.server";
+import { requireUserId } from "@/lib/session.server";
+import type { SerializedWorkoutDay } from "@/lib/types";
+import { DashboardPage } from "@/pages/dashboard-page";
+import type { LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -16,7 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     },
     include: { video: true },
-    orderBy: { scheduledDate: 'asc' },
+    orderBy: { scheduledDate: "asc" },
     take: 10,
   });
 

@@ -1,7 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useFetcher } from 'react-router';
-import { Check as CheckIcon, Dumbbell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,36 +6,31 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList
-} from '@/components/ui/command';
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import {
-  EQUIPMENT,
-  DAYS_OF_WEEK,
-  WORKOUT_GOALS
-} from '@/lib/constants';
-import { UserPreferences } from '@/lib/types';
-import { toast } from 'sonner';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { DAYS_OF_WEEK, EQUIPMENT, WORKOUT_GOALS } from "@/lib/constants";
+import type { UserPreferences } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { Check as CheckIcon, Dumbbell } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import { toast } from "sonner";
 
 interface PreferencesFormProps {
   preferences: UserPreferences | null;
@@ -48,12 +40,12 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
   const fetcher = useFetcher();
   const [localPreferences, setLocalPreferences] = useState<Partial<UserPreferences>>(
     preferences ?? {
-      goal: 'general-fitness',
+      goal: "general-fitness",
       preferredDuration: 30,
-      preferredIntensity: 'medium',
+      preferredIntensity: "medium",
       availableEquipment: [],
       preferredDays: [],
-    }
+    },
   );
   const [openEquipment, setOpenEquipment] = useState(false);
   const [openDays, setOpenDays] = useState(false);
@@ -71,30 +63,27 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
   }, [preferences]);
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data?.ok) {
-      toast.success('Preferences updated successfully');
+    if (fetcher.state === "idle" && fetcher.data?.ok) {
+      toast.success("Preferences updated successfully");
     }
   }, [fetcher.state, fetcher.data]);
 
   const handleSavePreferences = async () => {
     const formData = new FormData();
-    formData.append('goal', localPreferences.goal || 'general-fitness');
+    formData.append("goal", localPreferences.goal || "general-fitness");
+    formData.append("preferredDuration", String(localPreferences.preferredDuration ?? 30));
     formData.append(
-      'preferredDuration',
-      String(localPreferences.preferredDuration ?? 30)
+      "preferredIntensity",
+      (localPreferences.preferredIntensity as string) ?? "medium",
     );
-    formData.append(
-      'preferredIntensity',
-      (localPreferences.preferredIntensity as string) ?? 'medium'
-    );
-    (localPreferences.availableEquipment || []).forEach((item) =>
-      formData.append('availableEquipment', item)
-    );
-    (localPreferences.preferredDays || []).forEach((day) =>
-      formData.append('preferredDays', day)
-    );
+    for (const item of localPreferences.availableEquipment || []) {
+      formData.append("availableEquipment", item);
+    }
+    for (const day of localPreferences.preferredDays || []) {
+      formData.append("preferredDays", day);
+    }
 
-    fetcher.submit(formData, { method: 'post', action: '/settings' });
+    fetcher.submit(formData, { method: "post", action: "/settings" });
   };
 
   const toggleEquipment = (id: string) => {
@@ -105,12 +94,11 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           ...prev,
           availableEquipment: equipment.filter((item) => item !== id),
         };
-      } else {
-        return {
-          ...prev,
-          availableEquipment: [...equipment, id],
-        };
       }
+      return {
+        ...prev,
+        availableEquipment: [...equipment, id],
+      };
     });
   };
 
@@ -122,12 +110,11 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           ...prev,
           preferredDays: days.filter((d) => d !== day),
         };
-      } else {
-        return {
-          ...prev,
-          preferredDays: [...days, day],
-        };
       }
+      return {
+        ...prev,
+        preferredDays: [...days, day],
+      };
     });
   };
 
@@ -136,13 +123,11 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Fitness Goals</CardTitle>
-          <CardDescription>
-            Set your primary fitness goal and preferences
-          </CardDescription>
+          <CardDescription>Set your primary fitness goal and preferences</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Primary Goal</label>
+            <p className="text-sm font-medium">Primary Goal</p>
             <Select
               value={localPreferences.goal}
               onValueChange={(value) => setLocalPreferences({ ...localPreferences, goal: value })}
@@ -161,10 +146,15 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Preferred Workout Duration</label>
+            <p className="text-sm font-medium">Preferred Workout Duration</p>
             <Select
               value={localPreferences.preferredDuration?.toString()}
-              onValueChange={(value) => setLocalPreferences({ ...localPreferences, preferredDuration: parseInt(value) })}
+              onValueChange={(value) =>
+                setLocalPreferences({
+                  ...localPreferences,
+                  preferredDuration: Number.parseInt(value),
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select preferred workout duration" />
@@ -181,13 +171,15 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Preferred Intensity</label>
+            <p className="text-sm font-medium">Preferred Intensity</p>
             <Select
               value={localPreferences.preferredIntensity}
-              onValueChange={(value) => setLocalPreferences({
-                ...localPreferences,
-                preferredIntensity: value as 'low' | 'medium' | 'high'
-              })}
+              onValueChange={(value) =>
+                setLocalPreferences({
+                  ...localPreferences,
+                  preferredIntensity: value as "low" | "medium" | "high",
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select preferred intensity" />
@@ -211,7 +203,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Available Equipment</label>
+            <p className="text-sm font-medium">Available Equipment</p>
             <p className="text-sm text-muted-foreground mb-2">
               Select the equipment you have access to for your workouts
             </p>
@@ -220,7 +212,6 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  role="combobox"
                   aria-expanded={openEquipment}
                   className="w-full justify-between"
                 >
@@ -237,16 +228,13 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                   <CommandList>
                     <CommandGroup>
                       {EQUIPMENT.map((item) => (
-                        <CommandItem
-                          key={item.id}
-                          onSelect={() => toggleEquipment(item.id)}
-                        >
+                        <CommandItem key={item.id} onSelect={() => toggleEquipment(item.id)}>
                           <div
                             className={cn(
                               "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                               (localPreferences.availableEquipment || []).includes(item.id)
                                 ? "bg-primary text-primary-foreground"
-                                : "opacity-50"
+                                : "opacity-50",
                             )}
                           >
                             {(localPreferences.availableEquipment || []).includes(item.id) && (
@@ -274,6 +262,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                     <button
                       className="ml-1 rounded-full outline-none"
                       onClick={() => toggleEquipment(id)}
+                      type="button"
                     >
                       <span className="sr-only">Remove</span>
                       <span aria-hidden="true">×</span>
@@ -287,7 +276,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           <Separator />
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Preferred Workout Days</label>
+            <p className="text-sm font-medium">Preferred Workout Days</p>
             <p className="text-sm text-muted-foreground mb-2">
               Select the days you prefer to workout
             </p>
@@ -296,7 +285,6 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  role="combobox"
                   aria-expanded={openDays}
                   className="w-full justify-between"
                 >
@@ -311,16 +299,13 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                   <CommandList>
                     <CommandGroup>
                       {DAYS_OF_WEEK.map((day) => (
-                        <CommandItem
-                          key={day}
-                          onSelect={() => toggleDay(day)}
-                        >
+                        <CommandItem key={day} onSelect={() => toggleDay(day)}>
                           <div
                             className={cn(
                               "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                               (localPreferences.preferredDays || []).includes(day)
                                 ? "bg-primary text-primary-foreground"
-                                : "opacity-50"
+                                : "opacity-50",
                             )}
                           >
                             {(localPreferences.preferredDays || []).includes(day) && (
@@ -346,6 +331,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                   <button
                     className="ml-1 rounded-full outline-none"
                     onClick={() => toggleDay(day)}
+                    type="button"
                   >
                     <span className="sr-only">Remove</span>
                     <span aria-hidden="true">×</span>
@@ -356,8 +342,8 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Button onClick={handleSavePreferences} disabled={fetcher.state !== 'idle'}>
-            {fetcher.state === 'submitting' ? 'Saving...' : 'Save Preferences'}
+          <Button onClick={handleSavePreferences} disabled={fetcher.state !== "idle"}>
+            {fetcher.state === "submitting" ? "Saving..." : "Save Preferences"}
           </Button>
         </CardFooter>
       </Card>
