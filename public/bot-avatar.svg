@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bot avatar">
+  <rect width="120" height="120" rx="24" fill="#e7f1ff" />
+  <rect x="24" y="28" width="72" height="54" rx="16" fill="#1f4ea8" />
+  <circle cx="46" cy="55" r="6" fill="#e7f1ff" />
+  <circle cx="74" cy="55" r="6" fill="#e7f1ff" />
+  <rect x="48" y="68" width="24" height="6" rx="3" fill="#e7f1ff" />
+  <rect x="54" y="16" width="12" height="12" rx="6" fill="#1f4ea8" />
+  <rect x="58" y="8" width="4" height="10" rx="2" fill="#1f4ea8" />
+</svg>

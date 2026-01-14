@@ -109,7 +109,7 @@ export function ChatInterface() {
             >
               {message.role === "assistant" && (
                 <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src="/bot-avatar.png" alt="AI Assistant" />
+                  <AvatarImage src="/bot-avatar.svg" alt="AI Assistant" />
                   <AvatarFallback className="bg-primary/10 text-primary">
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
@@ -136,7 +136,7 @@ export function ChatInterface() {
           {isSubmitting && (
             <div className="flex justify-start mb-4">
               <Avatar className="h-8 w-8 mr-2">
-                <AvatarImage src="/bot-avatar.png" alt="AI Assistant" />
+                <AvatarImage src="/bot-avatar.svg" alt="AI Assistant" />
                 <AvatarFallback className="bg-primary/10 text-primary">
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
