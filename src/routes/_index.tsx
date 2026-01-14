@@ -1,7 +1,7 @@
+import { getUserId } from "@/lib/session.server";
+import { HomePage } from "@/pages/home-page";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { HomePage } from "@/pages/home-page";
-import { getUserId } from "@/lib/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
