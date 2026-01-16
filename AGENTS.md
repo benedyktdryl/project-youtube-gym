@@ -10,6 +10,7 @@
 - Based on the `vite-shadcn` starter; UI primitives live in `src/components/ui` (treat as vendored) and `hooks/use-toast.ts`.
 - Use Tailwind + shadcn/ui components and Lucide icons; avoid adding new UI libraries unless justified.
 - Target production-quality visuals: non-cookie-cutter layouts, thoughtful spacing, and consistent theming that works for both light/dark modes.
+- When working with mock data, wire UI to backend contracts or seed data rather than adding standalone mock-only UI. Any mocked surface should be i18n-ready (extract strings, avoid hard-coded English that can’t be translated later).
 
 ## Build, Test, and Development Commands
 - `bun install` — install dependencies.

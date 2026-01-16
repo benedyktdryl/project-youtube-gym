@@ -12,6 +12,7 @@ import {
   Dumbbell,
   ExternalLink as External,
   Flame,
+  Info,
   Plus,
   Share2,
   ThumbsUp,
@@ -103,6 +104,11 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
                 <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
                 <span>{Math.floor(video.duration / 60)} minutes</span>
               </div>
+              {video.trainingType && (
+                <Badge variant="secondary" className="capitalize">
+                  {video.trainingType}
+                </Badge>
+              )}
               <Badge
                 variant="outline"
                 className={
@@ -123,6 +129,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
             <TabsList className="mb-4">
               <TabsTrigger value="exercises">Exercises</TabsTrigger>
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="notes">Notes</TabsTrigger>
             </TabsList>
 
             <TabsContent value="exercises" className="space-y-4">
@@ -251,6 +258,18 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
                           </div>
                         </div>
                       </div>
+                      {video.trainingTags && video.trainingTags.length > 0 ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium mb-1">Tags:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {video.trainingTags.map((tag) => (
+                              <Badge key={tag} variant="secondary" className="capitalize">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="flex flex-col space-y-3">
@@ -278,8 +297,51 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
                               : "Recovery and mobility"}
                         </span>
                       </div>
+                      {video.qualityScore !== undefined && video.qualityScore !== null && (
+                        <div className="flex items-center">
+                          <Info className="h-5 w-5 mr-2 text-muted-foreground" />
+                          <span className="font-medium">Quality score:</span>
+                          <span className="ml-2">{video.qualityScore}/100</span>
+                        </div>
+                      )}
+                      {video.publishedAt && (
+                        <div className="flex items-center">
+                          <Calendar className="h-5 w-5 mr-2 text-muted-foreground" />
+                          <span className="font-medium">Published:</span>
+                          <span className="ml-2">
+                            {new Date(video.publishedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                      {video.commentCount !== undefined && (
+                        <p className="text-sm text-muted-foreground">
+                          {video.commentCount.toLocaleString()} YouTube comments analyzed
+                        </p>
+                      )}
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="notes">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Coach Notes & Safety</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                  {video.description ? (
+                    <p className="leading-relaxed">{video.description}</p>
+                  ) : null}
+                  {video.safetyNotes ? (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
+                      <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">Safety</p>
+                      <p>{video.safetyNotes}</p>
+                    </div>
+                  ) : (
+                    <p>No additional safety notes.</p>
+                  )}
+                  {video.coachTone ? <p>Coach tone: {video.coachTone}</p> : null}
                 </CardContent>
               </Card>
             </TabsContent>

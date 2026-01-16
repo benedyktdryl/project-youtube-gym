@@ -3,9 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { WorkoutVideo } from "@/lib/types";
-import { Bookmark, Clock, Dumbbell, Play, Plus } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router";
+import { Bookmark, Check, Clock, Dumbbell, Play, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useFetcher } from "react-router";
 import { toast } from "sonner";
 
 interface VideoCardProps {
@@ -14,6 +14,17 @@ interface VideoCardProps {
 
 export function VideoCard({ video }: VideoCardProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(video.scheduledCompleted ?? false);
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.data?.ok) {
+      setIsCompleted(true);
+      toast.success("Marked workout as completed");
+    } else if (fetcher.data?.error) {
+      toast.error(fetcher.data.error);
+    }
+  }, [fetcher.data]);
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,6 +37,16 @@ export function VideoCard({ video }: VideoCardProps) {
     e.preventDefault();
     e.stopPropagation();
     toast.success("Added to calendar");
+  };
+
+  const handleComplete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!video.scheduledId) return;
+    const formData = new FormData();
+    formData.append("intent", "complete-scheduled");
+    formData.append("scheduledId", video.scheduledId);
+    fetcher.submit(formData, { method: "post", action: `/videos/${video.id}` });
   };
 
   return (
@@ -93,6 +114,18 @@ export function VideoCard({ video }: VideoCardProps) {
               <Bookmark className={`h-4 w-4 ${isSaved ? "fill-primary" : ""}`} />
               <span className="sr-only">Save</span>
             </Button>
+            {video.scheduledId ? (
+              <Button
+                size="icon"
+                variant={isCompleted ? "secondary" : "ghost"}
+                className="h-7 w-7 rounded-full"
+                onClick={handleComplete}
+                disabled={isCompleted || fetcher.state !== "idle"}
+              >
+                <Check className="h-4 w-4" />
+                <span className="sr-only">Mark complete</span>
+              </Button>
+            ) : null}
             <Button
               size="icon"
               variant="ghost"

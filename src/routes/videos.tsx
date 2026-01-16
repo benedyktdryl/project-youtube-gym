@@ -6,13 +6,30 @@ import { VideosPage } from "@/pages/videos-page";
 import type { LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireUser(request);
+  const user = await requireUser(request);
 
-  const videos = await prisma.workoutVideo.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const [videos, scheduled] = await Promise.all([
+    prisma.workoutVideo.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.scheduledWorkout.findMany({
+      where: { userId: user.id },
+      select: { id: true, videoId: true, scheduledDate: true, isCompleted: true },
+      orderBy: { scheduledDate: "asc" },
+    }),
+  ]);
 
-  return { videos: videos.map((video) => mapWorkoutVideo(video)) as WorkoutVideo[] };
+  const scheduledByVideo = new Map<string, (typeof scheduled)[number]>();
+  for (const sched of scheduled) {
+    const existing = scheduledByVideo.get(sched.videoId);
+    if (!existing || sched.scheduledDate < existing.scheduledDate) {
+      scheduledByVideo.set(sched.videoId, sched);
+    }
+  }
+
+  const mapped = videos.map((video) => mapWorkoutVideo(video, scheduledByVideo.get(video.id)));
+
+  return { videos: mapped as WorkoutVideo[] };
 }
 
 export default VideosPage;

@@ -37,6 +37,8 @@ export interface WorkoutGoal {
 export interface WorkoutVideo {
   id: string;
   scheduledId?: string;
+  scheduledDate?: string;
+  scheduledCompleted?: boolean;
   title: string;
   youtubeId: string;
   channelName: string;
@@ -49,12 +51,13 @@ export interface WorkoutVideo {
   equipmentNeeded: string[];
   muscleGroups: string[];
   intensity: "low" | "medium" | "high";
-  trainingType?: string;
+  trainingType?: string | null;
   trainingTags?: string[];
-  coachTone?: string;
-  qualityScore?: number;
-  safetyNotes?: string;
+  coachTone?: string | null;
+  qualityScore?: number | null;
+  safetyNotes?: string | null;
   exercises: VideoExercise[];
+  analyzedAt?: string | null;
 }
 
 export interface VideoExercise {

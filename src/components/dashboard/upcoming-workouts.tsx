@@ -69,7 +69,16 @@ export function UpcomingWorkouts({ workouts }: UpcomingWorkoutsProps) {
                     className="flex items-center gap-3 ml-6 text-sm text-muted-foreground"
                   >
                     <Video className="h-3 w-3" />
-                    <span className="flex-1 truncate">{video.title}</span>
+                    <Link
+                      to={
+                        video.scheduledId
+                          ? `/videos/${video.id}?scheduledId=${video.scheduledId}`
+                          : `/videos/${video.id}`
+                      }
+                      className="flex-1 truncate hover:text-primary"
+                    >
+                      {video.title}
+                    </Link>
                     <div className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
                       <span>{Math.floor(video.duration / 60)} min</span>

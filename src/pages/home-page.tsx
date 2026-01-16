@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { MOCK_VIDEOS } from "@/lib/mock-data";
 import {
   ArrowRight,
   Calendar,
@@ -13,7 +12,22 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 
-export function HomePage() {
+type PopularVideo = {
+  id: string;
+  title: string;
+  youtubeId: string;
+  channelName: string;
+  channelThumbnail: string;
+  thumbnailUrl: string;
+  duration: number;
+  intensity: string;
+};
+
+type HomePageProps = {
+  popularVideos: PopularVideo[];
+};
+
+export function HomePage({ popularVideos }: HomePageProps) {
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -147,7 +161,7 @@ export function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-            {MOCK_VIDEOS.slice(0, 3).map((video) => (
+            {popularVideos.slice(0, 3).map((video) => (
               <div key={video.id} className="group relative overflow-hidden rounded-lg bg-card">
                 <div className="aspect-video overflow-hidden">
                   <img
