@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  migrate:
+    build:
+      context: .
+      target: tools
+    command: >
+      sh -c "npx prisma migrate deploy && node prisma/seed.js"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET:-dev-secret}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-""}
+      PG_BOSS_SCHEMA: ${PG_BOSS_SCHEMA:-public}
+    restart: "no"
+
+  web:
+    build:
+      context: .
+      target: runner
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-""}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-""}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-""}
+      APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-""}
+      APPLE_TEAM_ID: ${APPLE_TEAM_ID:-""}
+      APPLE_KEY_ID: ${APPLE_KEY_ID:-""}
+      APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY:-""}
+      OAUTH_MOCK: ${OAUTH_MOCK:-false}
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      target: runner
+    command: ["node", "--loader", "tsx", "src/worker/index.ts"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      PG_BOSS_SCHEMA: ${PG_BOSS_SCHEMA:-public}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-""}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-""}
+      OPENAI_MODEL: ${OPENAI_MODEL:-""}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped

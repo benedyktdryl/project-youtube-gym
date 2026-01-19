@@ -14,6 +14,8 @@ RUN npm run lint
 FROM lint AS build
 RUN npm run build
 
+FROM lint AS tools
+
 FROM gcr.io/distroless/nodejs22-debian12 AS runner
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
