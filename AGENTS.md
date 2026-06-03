@@ -1,38 +1,124 @@
-# Repository Guidelines
+# Repository Guidelines — TrainFlow
 
-## Project Structure & Module Organization
-- React + TypeScript via Vite. `src/main.tsx` bootstraps the app, and routing lives in `src/App.tsx` with React Router.
-- Feature areas sit under `src/components` (UI primitives in `ui/`, domain widgets in folders like `videos/`, `dashboard/`). Route-level screens are in `src/pages` using the `*-page.tsx` naming.
-- Shared logic resides in `src/lib` (`supabase.ts` client, `auth-context.tsx`, `types.ts`, helpers under `lib/hooks/`), with `@/` path alias mapped to `src/`.
-- Styling uses Tailwind via `index.css`/`App.css`. Supabase schema/migrations live in `supabase/migrations`; demo data is seeded from `seed-demo-data.sql`.
+**Linear project:** [TrainFlow](https://linear.app/primitive-technology/project/trainflow-852fe9fc3f9f)
+**Repo:** `benedyktdryl/project-youtube-gym`
+**Stack:** React Router 7 (framework mode), Prisma, Postgres, Tailwind, shadcn/ui, Bun, Docker
 
-## Template & Design Defaults
-- Based on the `vite-shadcn` starter; UI primitives live in `src/components/ui` (treat as vendored) and `hooks/use-toast.ts`.
-- Use Tailwind + shadcn/ui components and Lucide icons; avoid adding new UI libraries unless justified.
-- Target production-quality visuals: non-cookie-cutter layouts, thoughtful spacing, and consistent theming that works for both light/dark modes.
-- When working with mock data, wire UI to backend contracts or seed data rather than adding standalone mock-only UI. Any mocked surface should be i18n-ready (extract strings, avoid hard-coded English that can’t be translated later).
+---
 
-## Build, Test, and Development Commands
-- `bun install` — install dependencies.
-- `bun run dev` — start Vite dev server with hot reload.
-- `bun run build` — generate production build.
-- `bun run preview` — serve the production build locally.
-- `bun run lint` — run Biome checks across the repo; fix lint issues before opening a PR.
+## Architecture
 
-## Coding Style & Naming Conventions
-- Prefer functional React components written in TypeScript; keep props/return types explicit when non-trivial.
-- Use PascalCase for component files and components; hooks start with `use` and live in `src/hooks` or `lib/hooks`. Pages follow the existing `name-page.tsx` pattern.
-- Maintain 2-space indentation, single quotes, and Tailwind utility classes for layout/styling. Keep business logic in `lib` instead of component bodies when reusable.
-- Import modules via `@/` alias for local code; keep relative paths shallow.
+React Router 7 runs in **framework mode** (Remix-style):
+- Loaders/actions run **server-side** with Prisma and cookies — no browser-side DB calls
+- `src/routes/` — route modules (loader + action + default export)
+- `src/pages/` — pure React page components (receive data via `useLoaderData`)
+- `src/components/` — UI primitives (`ui/` = vendored shadcn) and domain widgets
+- `src/lib/` — server utilities (`prisma.server.ts`, `session.server.ts`, `mappers.server.ts`)
+- `src/worker/` — background ingestion worker (pg-boss + YouTube API)
+- `prisma/` — schema, migrations, seed script
+- `docs/` — PRDs and feature docs
+- `docs/adr/` — Architecture Decision Records (see below)
 
-## Testing Guidelines
-- No automated tests are present yet. When adding tests, use Vitest/React Testing Library, name files `*.test.tsx`, and colocate near the code under test.
-- Cover new logic (auth flows, Supabase data interactions, routing guards) and keep fixtures small. Run `bun run lint` as a minimum gate before pushing.
+## Development Commands
 
-## Commit & Pull Request Guidelines
-- Write imperative, scoped commit messages (e.g., `Add video detail guard`, `Fix Supabase profile fetch`). Squash locally if commits are noisy.
-- PRs should describe the change, list key commands run, and link related issues/tasks. Include screenshots or GIFs for UI changes and note any Supabase schema updates or seeds touched.
+```bash
+bun install              # install dependencies
+bun run dev              # Vite dev server with hot reload
+bun run build            # production build
+bun run start            # serve production build
+bun run lint             # Biome checks (run before every PR)
+bun run format           # Biome auto-format
 
-## Security & Configuration Tips
-- Required env vars: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (set in a non-committed `.env.local`). Do not commit keys or service roles.
-- If migrations change, document the Supabase CLI steps and keep `seed-demo-data.sql` aligned with schema changes to avoid local drift.
+# Prisma
+bun run prisma:migrate   # create + apply migration (dev)
+bun run prisma:generate  # regenerate Prisma client
+bun run prisma:seed      # seed demo data
+bun run prisma:studio    # Prisma Studio GUI
+
+# Worker
+bun run worker:dev       # start background ingestion worker
+bun run worker:enqueue -- https://youtube.com/watch?v=VIDEO_ID  # enqueue single video
+
+# E2E
+bun run test:e2e         # Playwright (uses OAUTH_MOCK=true)
+bun run test:e2e:ui      # interactive Playwright UI
+```
+
+## Environment Variables
+
+```env
+DATABASE_URL=postgres://...
+SESSION_SECRET=replace-me-with-random-string
+
+# YouTube ingestion
+YOUTUBE_API_KEY=...
+
+# OAuth (optional — skip for v1, use OAUTH_MOCK=true in dev)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+APPLE_CLIENT_ID=...
+APPLE_TEAM_ID=...
+APPLE_KEY_ID=...
+APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+
+# Dev only
+OAUTH_MOCK=true
+```
+
+## Coding Style
+
+- Functional TypeScript components; explicit prop/return types for non-trivial cases
+- PascalCase for component files; `use` prefix for hooks in `src/hooks/` or `src/lib/hooks/`
+- Route modules: `src/routes/name.tsx` (kebab-case)
+- Page components: `src/pages/name-page.tsx`
+- `@/` alias maps to `src/`
+- Tailwind + shadcn/ui; avoid new UI libraries unless justified
+- Keep business logic in `src/lib/` not route bodies when reusable
+- 2-space indent, single quotes
+
+## Architecture Decision Records
+
+Significant technical decisions go in `docs/adr/NNN-title.md`.
+
+Format:
+```
+# ADR NNN: Title
+Date: YYYY-MM-DD
+Status: Proposed | Accepted | Superseded
+
+## Context
+## Decision
+## Consequences
+```
+
+Current ADRs: *(none yet — add as decisions are made)*
+
+## Convention: where things live
+
+| Type | Location |
+|---|---|
+| Investigations, audits, research results | Linear comment on the relevant issue |
+| Architecture/tech decisions | `docs/adr/NNN-*.md` |
+| Feature docs, PRDs | `docs/` |
+| Deployment runbooks | `docs/DOKKU_DEPLOYMENT.md` (when created) |
+
+## PR Guidelines
+
+- Imperative commit messages: `feat(videos): add server-side filtering`
+- Always run `bun run lint` + `bun run build` before PR
+- PRs should describe change, key commands run, reference Linear issue (`Refs PRI-NNN`)
+- Include screenshots for UI changes
+- For migrations: note `bun run prisma:migrate` was run and list changed models
+
+## Security
+
+- Never commit `.env.local`, API keys, or session secrets
+- Demo credentials (`demo@trainflow.com`, `user@trainflow.com`) are for local dev only — must not appear in production UI
+- Password hashing via `passwordHash` field — verify bcrypt/argon2 is in use
+- Session cookies: httpOnly, Secure, SameSite=Lax
+
+## Ingestion Worker
+
+YouTube API quota: ~3 units/video, 10k units/day free tier.
+Worker enqueues via pg-boss in the same Postgres as the app.
+Analysis in `src/worker/analyze-training.ts` (rule-based; LLM optional via `OPENAI_API_KEY`).
