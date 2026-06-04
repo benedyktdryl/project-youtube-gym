@@ -39,6 +39,8 @@ export interface WorkoutVideo {
   scheduledId?: string;
   scheduledDate?: string;
   scheduledCompleted?: boolean;
+  scheduledRating?: number | null;
+  scheduledRatingComment?: string | null;
   title: string;
   youtubeId: string;
   channelName: string;
