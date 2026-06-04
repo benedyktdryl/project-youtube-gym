@@ -1,31 +1,24 @@
+import {
+  EQUIPMENT as EQUIPMENT_TAXONOMY,
+  MUSCLE_GROUPS as MUSCLE_GROUPS_TAXONOMY,
+} from "./taxonomy";
 import type { Equipment, MuscleGroup, WorkoutGoal } from "./types";
 
-// Available equipment options
-export const EQUIPMENT: Equipment[] = [
-  { id: "mat", name: "Yoga Mat", icon: "yoga" },
-  { id: "dumbbells", name: "Dumbbells", icon: "dumbbell" },
-  { id: "resistance-bands", name: "Resistance Bands", icon: "cable" },
-  { id: "kettlebell", name: "Kettlebell", icon: "kettlebell" },
-  { id: "pull-up-bar", name: "Pull-up Bar", icon: "bar-chart-horizontal" },
-  { id: "bench", name: "Bench", icon: "sofa" },
-  { id: "foam-roller", name: "Foam Roller", icon: "cylinder" },
-  { id: "jump-rope", name: "Jump Rope", icon: "cable-car" },
-];
+// Equipment + muscle-group filter options are DERIVED from the canonical
+// taxonomy (`./taxonomy`) so the ids here always match what the ingestion
+// analyzer writes to the DB. Do not hand-maintain a second list — add new
+// values to the taxonomy instead.
+export const EQUIPMENT: Equipment[] = EQUIPMENT_TAXONOMY.map((e) => ({
+  id: e.id,
+  name: e.label,
+  icon: e.icon ?? "dumbbell",
+}));
 
-// Muscle groups
-export const MUSCLE_GROUPS: MuscleGroup[] = [
-  { id: "abs", name: "Abs", icon: "hexagon" },
-  { id: "back", name: "Back", icon: "align-vertical-space-around" },
-  { id: "biceps", name: "Biceps", icon: "arm" },
-  { id: "chest", name: "Chest", icon: "shirt" },
-  { id: "glutes", name: "Glutes", icon: "circle" },
-  { id: "hamstrings", name: "Hamstrings", icon: "stretching" },
-  { id: "quads", name: "Quads", icon: "square" },
-  { id: "shoulders", name: "Shoulders", icon: "mountain" },
-  { id: "triceps", name: "Triceps", icon: "arm" },
-  { id: "full-body", name: "Full Body", icon: "activity" },
-  { id: "cardio", name: "Cardio", icon: "heart-pulse" },
-];
+export const MUSCLE_GROUPS: MuscleGroup[] = MUSCLE_GROUPS_TAXONOMY.map((e) => ({
+  id: e.id,
+  name: e.label,
+  icon: e.icon ?? "activity",
+}));
 
 // Workout goals
 export const WORKOUT_GOALS: WorkoutGoal[] = [
