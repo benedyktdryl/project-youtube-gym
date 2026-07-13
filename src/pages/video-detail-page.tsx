@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "@/components/videos/video-player";
+import { WorkoutRating } from "@/components/videos/workout-rating";
 import type { WorkoutVideo } from "@/lib/types";
 import { Check, ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -73,6 +74,14 @@ export function VideoDetailPage() {
             </p>
           )}
         </div>
+      )}
+
+      {showCompleteCta && isCompleted && video.scheduledId && (
+        <WorkoutRating
+          scheduledId={video.scheduledId}
+          initialRating={video.scheduledRating}
+          initialComment={video.scheduledRatingComment}
+        />
       )}
 
       <VideoPlayer video={video} />

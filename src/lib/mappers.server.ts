@@ -33,6 +33,8 @@ export function mapWorkoutVideo(video: PrismaWorkoutVideo, scheduled?: ScheduleM
     scheduledId: scheduled?.id,
     scheduledDate: scheduled?.scheduledDate?.toISOString(),
     scheduledCompleted: scheduled?.isCompleted,
+    scheduledRating: scheduled?.rating ?? null,
+    scheduledRatingComment: scheduled?.ratingComment ?? null,
   };
 }
 

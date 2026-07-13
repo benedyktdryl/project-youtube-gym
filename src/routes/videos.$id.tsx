@@ -43,7 +43,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent === "complete-scheduled") {
+  // Parse optional post-workout feedback (PRI-169). rating 1-5, comment, duration.
+  function parseFeedback() {
+    const ratingRaw = formData.get("rating");
+    const rating =
+      ratingRaw === null || ratingRaw === ""
+        ? null
+        : Math.min(5, Math.max(1, Math.round(Number(ratingRaw))));
+    const ratingComment = String(formData.get("ratingComment") ?? "").trim() || null;
+    const durationRaw = formData.get("durationSec");
+    const durationSec =
+      durationRaw === null || durationRaw === ""
+        ? null
+        : Math.max(0, Math.round(Number(durationRaw)));
+    return {
+      ...(rating !== null && Number.isFinite(rating) ? { rating } : {}),
+      ...(ratingComment ? { ratingComment } : {}),
+      ...(durationSec !== null && Number.isFinite(durationSec) ? { durationSec } : {}),
+    };
+  }
+
+  if (intent === "complete-scheduled" || intent === "rate-workout") {
     const scheduledId = String(formData.get("scheduledId") ?? "");
     if (!scheduledId) {
       return Response.json({ error: "scheduledId required" }, { status: 400 });
@@ -57,12 +77,22 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return Response.json({ error: "Scheduled workout not found" }, { status: 404 });
     }
 
+    const feedback = parseFeedback();
+    const completing = intent === "complete-scheduled";
+
     await prisma.scheduledWorkout.update({
       where: { id: scheduled.id },
-      data: { isCompleted: true, completedAt: new Date() },
+      data: {
+        ...(completing ? { isCompleted: true, completedAt: new Date() } : {}),
+        ...feedback,
+      },
     });
 
-    return Response.json({ ok: true, completedAt: new Date().toISOString() });
+    return Response.json({
+      ok: true,
+      completedAt: completing ? new Date().toISOString() : scheduled.completedAt?.toISOString(),
+      rated: "rating" in feedback,
+    });
   }
 
   return Response.json({ error: "Unsupported intent" }, { status: 400 });
