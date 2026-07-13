@@ -3,25 +3,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { EQUIPMENT, MUSCLE_GROUPS } from "@/lib/constants";
+import { INTENSITY_LEVELS } from "@/lib/taxonomy";
+import type { VideoFilterState } from "@/routes/videos";
 import { Filter, X } from "lucide-react";
 import { useState } from "react";
 
 interface VideoFiltersProps {
-  onFiltersChange: (filters: {
-    search: string;
-    muscleGroups: string[];
-    equipment: string[];
-    intensity: string[];
-    duration: [number, number];
-  }) => void;
+  onFiltersChange: (filters: VideoFilterState) => void;
+  initialFilters?: VideoFilterState;
 }
 
-export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
-  const [search, setSearch] = useState("");
-  const [selectedMuscleGroups, setSelectedMuscleGroups] = useState<string[]>([]);
-  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
-  const [selectedIntensity, setSelectedIntensity] = useState<string[]>([]);
-  const [duration, setDuration] = useState<[number, number]>([0, 60]);
+export function VideoFilters({ onFiltersChange, initialFilters }: VideoFiltersProps) {
+  const [search, setSearch] = useState(initialFilters?.search ?? "");
+  const [selectedMuscleGroups, setSelectedMuscleGroups] = useState<string[]>(
+    initialFilters?.muscleGroups ?? [],
+  );
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>(
+    initialFilters?.equipment ?? [],
+  );
+  const [selectedIntensity, setSelectedIntensity] = useState<string[]>(
+    initialFilters?.intensity ?? [],
+  );
+  const [duration, setDuration] = useState<[number, number]>([
+    initialFilters?.durationMin ?? 0,
+    initialFilters?.durationMax ?? 60,
+  ]);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +86,8 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
       muscleGroups,
       equipment,
       intensity,
-      duration,
+      durationMin: duration[0],
+      durationMax: duration[1],
     });
   };
 
@@ -205,7 +212,7 @@ export function VideoFilters({ onFiltersChange }: VideoFiltersProps) {
           <div>
             <h3 className="font-medium mb-2">Intensity</h3>
             <div className="flex flex-wrap gap-2">
-              {["low", "medium", "high"].map((level) => (
+              {INTENSITY_LEVELS.map((level) => (
                 <Badge
                   key={level}
                   variant={selectedIntensity.includes(level) ? "default" : "outline"}

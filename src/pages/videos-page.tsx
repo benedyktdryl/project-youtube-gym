@@ -1,58 +1,46 @@
 import { VideoCard } from "@/components/videos/video-card";
 import { VideoFilters } from "@/components/videos/video-filters";
 import type { WorkoutVideo } from "@/lib/types";
-import { useMemo, useState } from "react";
-import { useLoaderData } from "react-router";
+import type { VideoFilterState } from "@/routes/videos";
+import { useCallback, useRef } from "react";
+import { useLoaderData, useNavigation, useSearchParams } from "react-router";
+
+function filtersToParams(f: VideoFilterState): URLSearchParams {
+  const p = new URLSearchParams();
+  if (f.search) p.set("q", f.search);
+  if (f.muscleGroups.length) p.set("muscleGroups", f.muscleGroups.join(","));
+  if (f.equipment.length) p.set("equipment", f.equipment.join(","));
+  if (f.intensity.length) p.set("intensity", f.intensity.join(","));
+  if (f.durationMin !== 0) p.set("durationMin", String(f.durationMin));
+  if (f.durationMax !== 60) p.set("durationMax", String(f.durationMax));
+  return p;
+}
 
 export function VideosPage() {
-  const { videos } = useLoaderData<{ videos: WorkoutVideo[] }>();
-  const [filters, setFilters] = useState({
-    search: "",
-    muscleGroups: [] as string[],
-    equipment: [] as string[],
-    intensity: [] as string[],
-    duration: [0, 60] as [number, number],
-  });
+  const { videos, filters } = useLoaderData<{
+    videos: WorkoutVideo[];
+    filters: VideoFilterState;
+  }>();
+  const [, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const isFiltering = navigation.state === "loading";
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const filteredVideos = useMemo(() => {
-    return videos.filter((video) => {
-      if (filters.search && !video.title.toLowerCase().includes(filters.search.toLowerCase())) {
-        return false;
-      }
-
-      if (
-        filters.muscleGroups.length > 0 &&
-        !filters.muscleGroups.some((group) => video.muscleGroups.includes(group))
-      ) {
-        return false;
-      }
-
-      if (
-        filters.equipment.length > 0 &&
-        !filters.equipment.every(
-          (eq) =>
-            video.equipmentNeeded.includes(eq) ||
-            (eq === "none" && video.equipmentNeeded.length === 0),
-        )
-      ) {
-        return false;
-      }
-
-      if (filters.intensity.length > 0 && !filters.intensity.includes(video.intensity)) {
-        return false;
-      }
-
-      const videoDurationInMinutes = Math.floor(video.duration / 60);
-      if (
-        videoDurationInMinutes < filters.duration[0] ||
-        videoDurationInMinutes > filters.duration[1]
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [videos, filters]);
+  // Filtering is server-side: writing the filter state into the URL re-runs
+  // the loader, which queries Postgres with a `where`. Debounced so typing in
+  // search doesn't fire a request per keystroke.
+  const handleFiltersChange = useCallback(
+    (next: VideoFilterState) => {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        setSearchParams(filtersToParams(next), {
+          replace: true,
+          preventScrollReset: true,
+        });
+      }, 300);
+    },
+    [setSearchParams],
+  );
 
   return (
     <div className="space-y-6">
@@ -65,11 +53,15 @@ export function VideosPage() {
         preferences.
       </p>
 
-      <VideoFilters onFiltersChange={setFilters} />
+      <VideoFilters initialFilters={filters} onFiltersChange={handleFiltersChange} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredVideos.length > 0 ? (
-          filteredVideos.map((video) => <VideoCard key={video.id} video={video} />)
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity ${
+          isFiltering ? "opacity-50" : "opacity-100"
+        }`}
+      >
+        {videos.length > 0 ? (
+          videos.map((video) => <VideoCard key={video.id} video={video} />)
         ) : (
           <div className="col-span-full text-center py-12">
             <p className="text-muted-foreground">
